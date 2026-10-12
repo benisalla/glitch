@@ -1,0 +1,64 @@
+# Shuffle App Menu
+
+An Android app menu that lists your installed apps in a random order each time you open it. It is meant to break the habit of tapping apps by position: you have to read the menu to find what you want.
+
+## What v0.1 does
+- Shows every launchable app on the device (icon and name) in a shuffled order.
+- Shuffles once each time you open the menu. The order stays the same while the menu is on screen, including when you rotate the phone.
+- Opens the app you tap, normally. Coming back to the menu afterwards gives a new order.
+- If an app is installed or removed while the menu is open, the list updates without reshuffling the other entries.
+
+## What it does not do
+- It does **not** replace or rearrange Samsung's swipe-up app drawer, and it is not a home-screen (launcher) replacement. It is a separate app, "Shuffle Menu", that you open from your home screen.
+- No reminders, blockers, timers, usage tracking or accounts.
+- It makes no claim to improve focus, memory or intelligence. It only changes the order of the list.
+
+## Permissions
+None. The app does not request internet access or any other permission. To see which apps are installed it declares a narrow [`<queries>`](https://developer.android.com/training/package-visibility) entry for the standard launcher intent (`MAIN` / `LAUNCHER`), which lets it see only apps that appear in a launcher. It does not use `QUERY_ALL_PACKAGES`, and it has no analytics or network code.
+
+## Build from source
+Prerequisites:
+- JDK 17
+- Android SDK with platform 37 (`platforms;android-37.0`) and build-tools 36.0.0
+- `ANDROID_HOME` set to the SDK path, or a `local.properties` file in the repo root containing `sdk.dir=/path/to/Android/Sdk`
+
+Commands (run from the repo root):
+```
+./gradlew :app:assembleDebug              # builds app/build/outputs/apk/debug/app-debug.apk
+./gradlew :app:testDebugUnitTest          # unit tests
+./gradlew :app:lintDebug                  # lint
+./gradlew :app:connectedDebugAndroidTest  # instrumented tests; needs a running emulator or connected device
+```
+
+## Install on a phone (including Samsung Galaxy)
+The steps below are standard Android procedures; menu names can differ slightly between One UI versions.
+
+**Option A: with adb (from a computer)**
+1. On the phone, open Settings > About phone > Software information and tap "Build number" seven times to enable Developer options.
+2. Open Settings > Developer options and turn on "USB debugging".
+3. Connect the phone by USB and accept the "Allow USB debugging?" prompt.
+4. Build the APK (above), then run:
+   ```
+   adb install -r app/build/outputs/apk/debug/app-debug.apk
+   ```
+
+**Option B: download the APK built by CI**
+1. On GitHub, open the repository's Actions tab, pick a successful workflow run, and download the artifact named `shuffle-app-menu-debug-apk`.
+2. Unzip it to get `app-debug.apk` and copy the APK to the phone (or download it on the phone directly).
+3. Open the APK with My Files or your browser. When asked, allow "Install unknown apps" for that app, then tap Install.
+
+**Put it on the home screen**
+Open the app drawer, long-press "Shuffle Menu", and choose "Add to Home". Open the menu from that icon whenever you want a shuffled list.
+
+## Known limitations
+- It does not replace the One UI app drawer or home screen; both keep working as before.
+- Apps in a work profile or Samsung Secure Folder are not listed.
+- Only debug builds exist. The APK is signed with a debug key; there is no release signing or Play Store listing.
+- Tested on an Android emulator (API 35) only; not yet tested on a physical Samsung device.
+- The built manifest contains one entry added automatically by AndroidX Core: `com.benisalla.shufflemenu.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`. It is signature-level and private to this app, is never shown to the user, and grants no access to anything. The app requests no user-facing permissions.
+- Lint reports 2 warnings and no errors: `OldTargetApi` (targetSdk is 36 while compileSdk is 37) and `DataExtractionRules` (backup is disabled with `allowBackup="false"`; the app stores no user data).
+
+## Contributing
+See [CONTRIBUTING.md](CONTRIBUTING.md). Agent and contributor rules are in [AGENTS.md](AGENTS.md).
+
+No license has been chosen yet; all rights are reserved by the owner.

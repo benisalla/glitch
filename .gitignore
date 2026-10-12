@@ -1,0 +1,39 @@
+# Gradle / build output
+.gradle/
+build/
+.kotlin/
+captures/
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+
+# Local SDK / machine settings
+local.properties
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.DS_Store
+*.swp
+
+# Signing material and credentials
+*.jks
+*.keystore
+*.p12
+*.pem
+keystore.properties
+google-services.json
+.env
+.env.*
+
+# Logs
+*.log
+*.hprof
+
+# Claude Code local/session data (project settings.json stays tracked)
+.claude/settings.local.json
+.claude/**/*.local.*
+CLAUDE.local.md
