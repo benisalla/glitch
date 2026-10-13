@@ -1,45 +1,54 @@
 Glitch the autopilot. Look, then tap.
 
-Glitch shows the apps on your phone, with their usual icons and names, in a random order. Every time you open it, the order is reshuffled. Your thumb can't tap a spot from memory, so you look at the list and choose. One small glitch in a moment you repeat many times a day.
+Glitch shows the apps on your phone, with their usual icons and names, in a random order. Your thumb can't tap a spot from memory, so you look at the list and choose. One small glitch in a moment you repeat many times a day.
+
+Use it your way
+• As a normal app: open Glitch from your home screen and get a fresh order every time.
+• As your home screen, if you choose: your apps reshuffle every time you unlock the phone. The order stays steady while you use it, and going back to Home doesn't move anything.
 
 How it works
-1. Open Glitch from your home screen.
+1. Open Glitch, or make it your home screen.
 2. Your apps appear in a fresh, shuffled order.
 3. Look, then tap. The app opens just like it always does.
-
-Come back to the menu and the order changes again.
 
 Why glitch?
 Most of us open apps by position. The thumb knows where an icon lives and taps before we have really decided. That is handy, and it is also a habit that runs on autopilot.
 
 Glitch breaks tapping by position. When the icons are rarely in the same place twice, you read the names and pick the app you actually came for. It takes a second longer to find an app. That's the point: you get a second to choose.
 
+A dock for everyday apps
+• Up to 4 apps stay in a fixed dock and are left out of the shuffle. The defaults are phone, messages, camera and browser.
+• Long-press any app to add it to the dock or remove it. Long-press also opens App info.
+
+Make it your home screen, or switch back
+• In Glitch, tap "Make Glitch your home screen" and pick Glitch.
+• Or go to Settings → Apps → Choose default apps → Home app → Glitch (names vary a little between phones).
+• To switch back, tap "Change home app" in Glitch, or pick your previous home app in the same Settings screen. Your old home screen and app drawer are exactly as you left them.
+
 Steady while you look
-• The order stays put while the menu is on screen. It does not jump around, even when you rotate the phone.
-• Install or remove an app while the menu is open, and only that app is added or removed. Everything else stays where it was.
+• The order does not jump around while you look, even when you rotate the phone.
+• Install or remove an app, and only that app is added or removed. Everything else stays where it was.
 • Light and dark themes follow your system setting.
 
 Private by design
-• No permissions requested.
+• No permissions requested, also as your home screen.
 • No internet access, so nothing can leave your phone.
 • No ads, no analytics, no tracking, no accounts.
 • Your app list is read on your phone to draw the menu, and stays there.
 • It only sees apps that show up in a launcher, not every package on your device.
 
 What it doesn't do
-• It does not replace your home screen or your app drawer. Both keep working exactly as before.
+• It doesn't change your phone's own launcher or app drawer. Using Glitch as your home screen is optional, and you can switch back anytime.
+• No widgets, wallpaper or search in this version.
 • No reminders, blockers, timers or usage statistics.
 • It does not lock, hide or limit any app. It only changes the order of the list.
 
 FAQ
 Does it replace my home screen?
-No. Glitch is a normal app you open when you want it. Your home screen and app drawer stay the same.
+Only if you choose to. Glitch works as a normal app. If you set it as your home app, you can switch back anytime in Glitch ("Change home app") or in Settings → Apps → Choose default apps → Home app.
 
-How do I keep it handy?
-Long-press Glitch in your app drawer and add it to your home screen.
-
-Does the order change while I'm looking at it?
-No. You get one new order each time you open the menu. It stays the same until you leave and come back.
+When does the order change?
+As a normal app: each time you open Glitch. As your home screen: each time you unlock the phone. It never changes while you're looking at it.
 
 Why does it need no permissions?
 Android lets an app see the apps that appear in a launcher without any special permission. That is all Glitch needs.
@@ -52,4 +61,4 @@ No. There are no ads and no in-app purchases.
 
 Glitch is new and actively developed, with more on the way. Ideas and feedback are welcome at ismailbenalla52@gmail.com.
 
-Glitch. Private and quiet. Open it, look, then tap.
+Glitch. Private and quiet. Look, then tap.

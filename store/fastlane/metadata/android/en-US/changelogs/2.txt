@@ -1,0 +1,6 @@
+Glitch 1.1.0: Glitch can be your home screen, if you want.
+• Optional: set Glitch as your home app. Your apps reshuffle each time you unlock the phone and stay put while you use it.
+• A fixed dock keeps up to 4 apps in place (phone, messages, camera, browser by default).
+• Long-press an app: Add to dock, Remove from dock, App info.
+• Switch back anytime with "Change home app".
+• Still no permissions, no internet, no tracking.
