@@ -53,7 +53,7 @@ Open the app drawer, long-press "Shuffle Menu", and choose "Add to Home". Open t
 ## Known limitations
 - It does not replace the One UI app drawer or home screen; both keep working as before.
 - Apps in a work profile or Samsung Secure Folder are not listed.
-- Only debug builds exist. The APK is signed with a debug key; there is no release signing or Play Store listing.
+- Release builds are signed only when you provide your own upload key in `keystore.properties` (see `store/README.md`); without it `bundleRelease` produces an unsigned bundle.
 - Tested on an Android emulator (API 35) only; not yet tested on a physical Samsung device.
 - The built manifest contains one entry added automatically by AndroidX Core: `com.benisalla.shufflemenu.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`. It is signature-level and private to this app, is never shown to the user, and grants no access to anything. The app requests no user-facing permissions.
 - Lint reports 2 warnings and no errors: `OldTargetApi` (targetSdk is 36 while compileSdk is 37) and `DataExtractionRules` (backup is disabled with `allowBackup="false"`; the app stores no user data).
