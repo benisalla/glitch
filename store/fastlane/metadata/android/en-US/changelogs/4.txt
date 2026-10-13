@@ -1,0 +1,1 @@
+New: the Shuffled apps widget. Add it to your usual home screen (long-press the home screen, tap Widgets, then Glitch). It shows your apps in a shuffled order, and the order changes after every tap from the widget, each time you open Glitch, and from time to time on its own. Your launcher and app drawer stay exactly as they are. Still no permissions and no internet access.

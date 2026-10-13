@@ -451,4 +451,26 @@ class MenuViewModelTest {
         vm.onMenuStarted()
         assertEquals(listOf(apps[5]), vm.ready().dock)
     }
+
+    @Test
+    fun newSessionCallback_firesOncePerNewlyOpenedMenuOnly() = runTest {
+        var sessions = 0
+        val vm = MenuViewModel(catalog, launcher, store, random, onNewSession = { sessions++ })
+        vm.onMenuStarted()
+        assertEquals(1, sessions)
+
+        // Rotation and incidental refreshes are not new sessions.
+        vm.onMenuStopped(changingConfigurations = true)
+        vm.onMenuStarted()
+        catalog.changeEvents.tryEmit(Unit)
+        vm.retry()
+        assertEquals(1, sessions)
+
+        vm.onMenuStopped(changingConfigurations = false)
+        vm.onMenuStarted()
+        assertEquals(2, sessions)
+
+        vm.onMenuReopenedBeforeStop()
+        assertEquals(3, sessions)
+    }
 }

@@ -2,4 +2,7 @@
     <style name="Theme.Glitch" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowBackground">@color/window_background</item>
     </style>
+
+    <!-- The widget's launch trampoline: no window at all, so nothing flashes between the tap and the app. -->
+    <style name="Theme.Glitch.Trampoline" parent="android:Theme.NoDisplay" />
 </resources>

@@ -1,0 +1,7 @@
+<resources>
+    <!-- Widget corners close to One UI's own widgets; Android 12+ uses the system radius (values-v31). -->
+    <dimen name="widget_radius">24dp</dimen>
+    <dimen name="widget_padding">8dp</dimen>
+    <dimen name="widget_icon_size">44dp</dimen>
+    <dimen name="widget_column_width">68dp</dimen>
+</resources>
