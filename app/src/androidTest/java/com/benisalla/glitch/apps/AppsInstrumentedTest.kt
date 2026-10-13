@@ -15,6 +15,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -84,6 +85,16 @@ class AppsInstrumentedTest {
         assertEquals(listOf(MainActivity::class.java.name), handlers.map { it.activityInfo.name })
         assertTrue(isHomeIntent(home))
         assertTrue(!isHomeIntent(Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)))
+    }
+
+    @Test
+    fun isDefaultHome_falseWhileAnotherLauncherHoldsTheRole() {
+        // Regression: resolving the HOME intent answered "Glitch" whenever the real default launcher
+        // was hidden by package visibility (e.g. the Pixel launcher has no LAUNCHER activity).
+        assumeTrue(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q)
+        val roleManager = context.getSystemService(android.app.role.RoleManager::class.java)
+        assumeTrue(!roleManager.isRoleHeld(android.app.role.RoleManager.ROLE_HOME))
+        assertTrue(!isDefaultHome(context))
     }
 
     @Test

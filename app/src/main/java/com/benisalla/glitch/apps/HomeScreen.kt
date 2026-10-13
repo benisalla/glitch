@@ -22,12 +22,22 @@ private const val TAG = "HomeScreen"
 private fun homeIntent(): Intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
 
 /**
- * True when Glitch is the default home app. Our own package is always visible to us, so this
- * needs no package-visibility query; any other result (another launcher, the chooser, or a
- * package hidden from us) means "not Glitch".
+ * True when Glitch is the default home app.
+ *
+ * Android 10+: asks RoleManager whether we hold the HOME role. Resolving the HOME intent is not
+ * reliable there: package visibility (Android 11+) hides a default launcher that has no LAUNCHER
+ * activity, and the resolution then falls back to our own HOME filter, wrongly answering "Glitch".
+ * Android 8-9 have no package visibility, so resolving the HOME intent is exact there.
  */
-fun isDefaultHome(context: Context): Boolean =
-    resolveDefault(context.packageManager, homeIntent())?.packageName == context.packageName
+fun isDefaultHome(context: Context): Boolean {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        val roleManager = context.getSystemService(RoleManager::class.java)
+        if (roleManager != null && roleManager.isRoleAvailable(RoleManager.ROLE_HOME)) {
+            return roleManager.isRoleHeld(RoleManager.ROLE_HOME)
+        }
+    }
+    return resolveDefault(context.packageManager, homeIntent())?.packageName == context.packageName
+}
 
 /** True if [intent] is a Home button press (as opposed to the LAUNCHER icon). */
 fun isHomeIntent(intent: Intent?): Boolean =

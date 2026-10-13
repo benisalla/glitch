@@ -387,14 +387,15 @@ private fun AppTile(
                 .sizeIn(minHeight = 48.dp)
                 .clip(TileShape)
                 .testTag(if (inDock) MenuTags.DOCK_TILE else MenuTags.GRID_TILE)
+                // One node for TalkBack (and UI Automator) carrying the tag, the full label (even
+                // when the visible one is cut) and the click actions.
+                .semantics { contentDescription = entry.label }
                 .combinedClickable(
                     role = Role.Button,
                     onLongClickLabel = moreOptions,
                     onLongClick = { menuOpen = true },
                     onClick = onClick,
                 )
-                // One node for TalkBack, announced with the full label even when the visible one is cut.
-                .semantics(mergeDescendants = true) { contentDescription = entry.label }
                 .padding(horizontal = 4.dp, vertical = if (inDock) 8.dp else 10.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
