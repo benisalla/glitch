@@ -2,12 +2,12 @@
 
 **Glitch the autopilot. Look, then tap.**
 
-[![CI](https://github.com/benisalla/glitch-menu/actions/workflows/ci.yml/badge.svg)](https://github.com/benisalla/glitch-menu/actions/workflows/ci.yml)
+[![CI](https://github.com/benisalla/glitch/actions/workflows/ci.yml/badge.svg)](https://github.com/benisalla/glitch/actions/workflows/ci.yml)
 ![Android 8.0+](https://img.shields.io/badge/Android-8.0%2B-3DDC84?logo=android&logoColor=white)
 ![Permissions: none](https://img.shields.io/badge/permissions-none-brightgreen)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-Glitch is an Android app menu that lists your installed apps in a random order each time you open it. It is meant to break the habit of tapping apps by position: you have to read the menu to find what you want.
+Glitch is an Android app for breaking the autopilot on your phone. Its first feature is the shuffle: your installed apps in a new random order every time you open Glitch, so you look instead of tapping by position.
 
 <p align="center">
   <img src="store/screenshots/phone-1-light.png" width="260" alt="Glitch in light mode">

@@ -5,7 +5,7 @@ The listing text itself lives in `store/fastlane/metadata/android/en-US/`. This 
 ## Current listing at a glance
 | Field | Text | Chars (limit) |
 |---|---|---|
-| Title | Glitch: Shuffled App Menu | 25 (30) |
+| Title | Glitch: Break the Autopilot | 27 (30) |
 | Short description | Glitch the autopilot. Your apps, shuffled on every open. Look, then tap. | 72 (80) |
 | Full description | see `full_description.txt` | 2638 (4000) |
 | What's new (1.0.0) | see `changelogs/default.txt` | 427 (500) |
@@ -14,10 +14,10 @@ Counts are from `wc -m` on files with no trailing newline.
 
 Tagline: "Glitch the autopilot. Look, then tap." It opens the full description and starts the short description.
 
-Note: the app is now called Glitch (name under the icon), and the Play title is "Glitch: Shuffled App Menu". When creating the app in Play Console (`store/README.md`, step 4), use this title.
+Note: the app is now called Glitch (name under the icon), and the Play title is "Glitch: Break the Autopilot". When creating the app in Play Console (`store/README.md`, step 4), use this title.
 
 ## Name and tone
-"Glitch" plays on the icon: a 3x3 grid of white tiles with the middle tile gold and tilted, one tile out of place. The tone is confident and a little edgy: the app interrupts tapping on autopilot. Keep the edge in the wording, not in the claims. "Autopilot" refers only to tapping apps by position, which the research supports (`research.md`, #4, #5, #6). It never means phone use, attention or behavior in general.
+"Glitch" plays on the icon: a white ring, the loop of autopilot, broken by a tilted gold tile, one piece out of place. The tone is confident and a little edgy: the app interrupts tapping on autopilot. Keep the edge in the wording, not in the claims. "Autopilot" refers only to tapping apps by position, which the research supports (`research.md`, #4, #5, #6). It never means phone use, attention or behavior in general.
 
 ## Keywords and why
 Play ranks mostly on the title, then the short description, then natural use of words in the full description. No keyword list, no repetition for its own sake.
@@ -26,8 +26,9 @@ Play ranks mostly on the title, then the short description, then natural use of 
 
 | Keyword / phrase | Where | Why |
 |---|---|---|
-| glitch | title, short description, description | The brand word. Always next to "shuffled app menu" or a description of the shuffle, never alone. |
-| shuffled app menu | title, description (closing line) | The descriptive phrase that tells search and people what Glitch is. Covers "shuffle", "app" and "menu". |
+| glitch | title, short description, description | The brand word. Always next to "Break the Autopilot" or a description of the shuffle, never alone. |
+| break the autopilot | title | The promise of the whole app, not just its first feature. |
+| shuffled, random app order | short description, description | Describes the shipped first feature for search. |
 | random order / random app order | description, changelog | The plain search phrase for what the app does. |
 | shuffled / reshuffled | short description, description | The core action, matches screenshots. |
 | app list / apps | description | Natural phrasing for the list of installed apps. |
@@ -37,7 +38,7 @@ Play ranks mostly on the title, then the short description, then natural use of 
 | light and dark | description, changelog | Matches screenshot 4. |
 
 Deliberately not used:
-- "Glitch" alone in the title. Without "Shuffled App Menu" it would compete with games and effects apps.
+- "Glitch" alone in the title. Without "Break the Autopilot" it would compete with games and effects apps. Glitch is more than a menu: the shuffle is only its first feature, so "menu" stays out of the title.
 - "App drawer" and "launcher" in the title or short description. The app is not a launcher or drawer replacement, and those words would attract people expecting one. They appear in the full description only to say what the app is not.
 - Any focus, attention, memory, productivity, mindfulness, detox, screen-time, addiction or mental-health wording, and no mention of any condition. Not allowed by AGENTS.md and risky under Play's metadata policy.
 - Film or pop-culture references to "breaking out" of a simulation, and their trademarked names. The "autopilot" wording carries the vibe on its own.
@@ -57,7 +58,7 @@ For Play Console store listing experiments (Grow > Store presence > Store listin
 |---|---|---|
 | Current (tagline angle) | Glitch the autopilot. Your apps, shuffled on every open. Look, then tap. | 72 |
 | A (plain habit angle) | Apps in a new random order on every open, so you look before you tap. | 69 |
-| B (privacy angle) | A shuffled app menu. No permissions, no internet, no ads, no tracking. | 70 |
+| B (privacy angle) | Your apps, shuffled on every open. No permissions, no internet, no ads. | 71 |
 
 What each tests: the current text leads with the brand attitude; A says plainly what happens and why, for people who skim past the tagline; B leads with privacy for people who are wary of utilities that read app lists. Run each for at least 7 days or until Play reports a clear result.
 
