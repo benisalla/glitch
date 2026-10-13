@@ -30,7 +30,7 @@ Question from the owner: keep One UI Home exactly as it is and only randomize th
 | **Glitch widget with shuffled icons on the One UI home screen** | **Yes** | No | Yes | **Yes** | Good: same launcher and drawer; a grid of shuffled apps on a home page | M |
 | Glitch pinned-shortcut "slots" rewritten on each shuffle | Yes (behavior on One UI needs device testing) | No | Yes | Yes | Looks like normal icons/folder; may show a Glitch badge; one-time pin dialogs | M |
 | Third-party Edge panel with shuffled apps | **No** on One UI 7+ (feature disabled by Samsung) | – | – | – | – | – |
-| Glitch as the home app (already exists in v1.1) | Yes | No | Yes | Yes | Replaces One UI Home, which the owner explicitly does not want | Done |
+| Glitch as the home app (v1.1.0, removed in 1.1.1) | Yes | No | Yes | Yes | Replaces One UI Home, which the owner explicitly does not want | Removed |
 
 ## Details
 
@@ -152,7 +152,7 @@ Old apps that import layouts *from* TouchWiz did read `content://com.sec.android
 
 - **Samsung Modes and Routines / Bixby:** I found no action that reorders the home screen or apps screen.
 - **Knox SDK:** enterprise only. It needs device admin/Knox licensing and offers `addHomeShortcut` and kiosk layouts, but I found no drawer-order API. Not applicable to consumers. https://docs.samsungknox.com/dev/knox-sdk/sample-app-tutorials/set-up-kiosk-mode/enable-kiosk-mode/
-- **Glitch's own home mode (v1.1):** fully shuffles the home grid, but it is a replacement launcher, which the owner rejected.
+- **Glitch's own home mode (v1.1.0, removed in 1.1.1):** fully shuffles the home grid, but it is a replacement launcher, which the owner rejected.
 
 ## Recommendation for the owner
 
