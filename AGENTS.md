@@ -2,7 +2,7 @@
 
 ## Product scope
 - One purpose: show the installed, launchable apps (icon + label) in a random order, so the user has to look instead of tapping by position. Tapping an app opens it normally.
-- Platform boundary: this is a standalone menu app that the user opens from their existing home screen. It does not modify Samsung One UI's app drawer, is not a home-screen replacement, and must never declare a HOME intent filter or request the HOME role.
+- Platform boundary: this is a standalone app (its first feature is the shuffled app list) that the user opens from their existing home screen. It does not modify Samsung One UI's app drawer, is not a home-screen replacement, and must never declare a HOME intent filter or request the HOME role.
 - Vision: Glitch grows into gentle, user-controlled cues for people with ADHD and attention that wanders quickly. See `VISION.md`, `ROADMAP.md` and the research in `product/`.
 - Planned, not yet approved: intention prompts, time cues, usage awareness (see `ROADMAP.md`). Build a roadmap item only after the owner explicitly approves that item, and update this file in the same change.
 - Never: lockouts or blockers you can't escape, streaks, shame-based copy, analytics, accounts, backend, ads, AI.

@@ -1,5 +1,5 @@
 <resources>
-    <color name="ic_launcher_background">#FF2E3A59</color>
+    <color name="ic_launcher_background">#FF010F3E</color>
     <!-- Window background shown before Compose draws; matches the fallback surface color. -->
     <color name="window_background">#FFFAF8FF</color>
 </resources>

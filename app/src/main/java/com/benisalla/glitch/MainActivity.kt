@@ -12,7 +12,7 @@ import com.benisalla.glitch.menu.MenuViewModel
 import com.benisalla.glitch.menu.GlitchTheme
 
 /**
- * Standalone shuffled app menu. It is opened from the user's existing home
+ * Glitch's first feature: a standalone shuffled app list. It is opened from the user's existing home
  * screen like any other app; it is not a launcher and never asks to be one.
  */
 class MainActivity : ComponentActivity() {
