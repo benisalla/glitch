@@ -27,6 +27,8 @@
 #
 # Exit codes: 0 all checks passed, 1 at least one FAIL, 2 not a launcher build
 # (launcher checks skipped; app-mode checks still run and are reported), 3 setup error.
+# On Android 9 and older (API < 29) there is no `cmd role`, so the home-mode checks are
+# SKIPped with a message (the role must be set by hand there) and the run can still exit 0.
 #
 # Only needs adb, grep, sed and awk on the host.
 
@@ -63,6 +65,9 @@ FAILS=0
 SKIPS=0
 FAILED_NAMES=""
 LAUNCHER_BUILD=0
+SDK=0
+ROLE_SUPPORTED=0   # `cmd role` exists from Android 10 (API 29)
+HOME_MODE=0        # launcher build and the role can be set from adb: run the home-mode checks
 RESTORE_NEEDED=0
 PREV_HOME=""
 PREV_USER_ROTATION=""
@@ -94,7 +99,9 @@ restore() {
     log "rotation restored (user_rotation=${PREV_USER_ROTATION:-?}, accelerometer_rotation=${PREV_ACCEL_ROTATION:-?})"
     local now
     now="$(home_holder)"
-    if [ "$now" != "$PREV_HOME" ]; then
+    if [ "$ROLE_SUPPORTED" = 0 ]; then
+      log "home role untouched (no cmd role on API $SDK)"
+    elif [ "$now" != "$PREV_HOME" ]; then
       if [ -n "$PREV_HOME" ]; then
         adb_sh "cmd role add-role-holder $HOME_ROLE $PREV_HOME" > /dev/null
       else
@@ -122,7 +129,10 @@ set_setting() {
     || adb_sh "content insert --uri content://settings/system --bind name:s:$1 --bind value:i:$2" > /dev/null
 }
 
-home_holder() { adb_sh "cmd role get-role-holders $HOME_ROLE" | grep -v '^$' | head -n 1 || true; }
+home_holder() {
+  [ "$ROLE_SUPPORTED" = 1 ] || return 0
+  adb_sh "cmd role get-role-holders $HOME_ROLE" | grep -v '^$' | head -n 1 || true
+}
 
 top_activity() {
   adb_sh dumpsys activity activities \
@@ -386,7 +396,10 @@ if [ -z "$devices" ]; then echo "no device connected (adb devices is empty)" >&2
 if [ -z "${ANDROID_SERIAL:-}" ] && [ "$(printf '%s\n' "$devices" | wc -l)" -gt 1 ]; then
   echo "several devices connected; set ANDROID_SERIAL to one of: $(printf '%s ' $devices)" >&2; exit 3
 fi
-log "device: ${ANDROID_SERIAL:-$devices} (API $(adb_sh getprop ro.build.version.sdk))"
+SDK="$(adb_sh getprop ro.build.version.sdk)"
+case "$SDK" in ''|*[!0-9]*) SDK=0 ;; esac
+if [ "$SDK" -ge 29 ]; then ROLE_SUPPORTED=1; fi
+log "device: ${ANDROID_SERIAL:-$devices} (API $SDK)"
 if ! adb_sh pm path "$PKG" | grep -q '^package:'; then
   echo "$PKG is not installed; run ./gradlew :app:installDebug first" >&2; exit 3
 fi
@@ -423,13 +436,20 @@ rotate_to 0
 if adb_sh "cmd package query-activities --brief -a android.intent.action.MAIN -c android.intent.category.HOME" \
      | grep -q "$PKG/"; then
   LAUNCHER_BUILD=1
+  if [ "$ROLE_SUPPORTED" = 1 ]; then
+    HOME_MODE=1
+  else
+    printf '\nHOME-MODE CHECKS SKIPPED: this device is API %s; `cmd role` needs Android 10 (API 29) or newer,\n' "$SDK"
+    printf 'so the default home cannot be set from adb. Set Glitch as home by hand to test home mode.\n'
+    printf 'App-mode checks still run.\n'
+  fi
 else
   printf '\nNOT A LAUNCHER BUILD: %s declares no MAIN/HOME/DEFAULT activity, so it cannot hold %s.\n' "$PKG" "$HOME_ROLE"
   printf 'Launcher checks are skipped; app-mode checks still run so the parsing is exercised.\n'
 fi
 
 # ---------------------------------------------------------------- launcher checks
-if [ "$LAUNCHER_BUILD" = 1 ]; then
+if [ "$HOME_MODE" = 1 ]; then
   info "Launcher mode"
   adb_sh "cmd role add-role-holder $HOME_ROLE $PKG" > /dev/null || true
   if [ "$(home_holder)" = "$PKG" ]; then pass "set as default home ($HOME_ROLE)"
@@ -500,7 +520,8 @@ else
   for c in "set as default home" "HOME shows Glitch" "dock has 1..4 apps" "Back on home does nothing" \
            "Home while on Glitch keeps the order" "returning Home after another app keeps the order" \
            "screen off/on reshuffles the grid" "rotation keeps the order (home)" "dock unchanged"; do
-    skip "$c" "not a launcher build"
+    if [ "$LAUNCHER_BUILD" = 1 ]; then skip "$c" "no cmd role on API $SDK (needs API 29+)"
+    else skip "$c" "not a launcher build"; fi
   done
 fi
 
@@ -508,7 +529,7 @@ fi
 # Glitch opened like a normal app. When it holds the home role, step away from it first so the
 # checks exercise the app path: give the role back to the previous holder for this section.
 info "App mode"
-if [ "$LAUNCHER_BUILD" = 1 ] && [ -n "$PREV_HOME" ] && [ "$PREV_HOME" != "$PKG" ]; then
+if [ "$HOME_MODE" = 1 ] && [ -n "$PREV_HOME" ] && [ "$PREV_HOME" != "$PKG" ]; then
   adb_sh "cmd role add-role-holder $HOME_ROLE $PREV_HOME" > /dev/null || true
   # Without this, a failed hand-back would leave Glitch as home, where keeping the order on
   # return is correct, and the reopen check below would fail for the wrong reason.
@@ -546,6 +567,10 @@ fi
 if [ "$LAUNCHER_BUILD" = 0 ]; then
   printf 'RESULT: not a launcher build (exit 2). App-mode checks passed.\n'
   exit 2
+fi
+if [ "$HOME_MODE" = 0 ]; then
+  printf 'RESULT: app-mode checks passed; home-mode checks skipped (API %s has no cmd role)\n' "$SDK"
+  exit 0
 fi
 printf 'RESULT: all checks passed\n'
 exit 0
