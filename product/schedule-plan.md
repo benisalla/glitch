@@ -1,4 +1,6 @@
 # Glitch: shuffle schedules (plan)
+> **Status (2026-10-13): on hold.** This plan was written for the home-screen mode, which was removed in 1.1.1 at the owner's request. The owner chose a "Shuffled apps" home-screen widget next (see `samsung-drawer-research.md`). The schedule rules here (windows, Travel pause, decision table) will be adapted to the widget's reshuffle triggers.
+
 
 Status: **plan only, no app code.** Needs the owner's explicit approval and an AGENTS.md update (session semantics, the persisted order) before anyone builds it. Target: after the v1.1.0 home-screen work is merged, so v1.1.x or v1.2.
 
