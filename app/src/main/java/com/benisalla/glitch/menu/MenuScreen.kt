@@ -1,6 +1,7 @@
 package com.benisalla.glitch.menu
 
 import android.graphics.drawable.Drawable
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -26,11 +27,13 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
@@ -89,7 +92,25 @@ object MenuTags {
     const val DOCK_TILE = "dock_tile"
     const val DOCK = "dock"
     const val HOME_CARD = "home_card"
+    const val HEADER_MENU = "header_menu"
 }
+
+/** One entry of the header's More options (⋮) menu. */
+class HeaderMenuItem(@StringRes val label: Int, val onClick: () -> Unit)
+
+/**
+ * Entries of the header's More options (⋮) menu, top to bottom. It is always reachable (Ready,
+ * Empty and Error states), so app-wide actions belong here; later features add their entry to
+ * this list.
+ */
+fun headerMenuItems(isDefaultHome: Boolean, actions: MenuActions): List<HeaderMenuItem> = listOf(
+    // The system decides the default home app; this is the visible way in and back out.
+    if (isDefaultHome) {
+        HeaderMenuItem(R.string.menu_change_home, actions.onChangeHome)
+    } else {
+        HeaderMenuItem(R.string.home_card_title, actions.onMakeHome)
+    },
+)
 
 /** What the long-press menu and the home card can do, besides opening an app. */
 class MenuActions(
@@ -189,10 +210,11 @@ fun MenuContent(
             val loading = stringResource(R.string.menu_loading)
             CircularProgressIndicator(Modifier.semantics { contentDescription = loading })
         }
-        MenuUiState.Empty -> CenteredBox(contentPadding, modifier) {
+        // Empty and Error keep the header, so its menu (e.g. "Change home app") is never out of reach.
+        MenuUiState.Empty -> StatusLayout(contentPadding, modifier, isDefaultHome, actions) {
             StatusText(stringResource(R.string.menu_empty))
         }
-        MenuUiState.Error -> CenteredBox(contentPadding, modifier) {
+        MenuUiState.Error -> StatusLayout(contentPadding, modifier, isDefaultHome, actions) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 StatusText(stringResource(R.string.menu_error))
                 Spacer(Modifier.height(16.dp))
@@ -219,7 +241,9 @@ fun MenuContent(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
             ) {
-                item(key = HeaderKey, span = { GridItemSpan(maxLineSpan) }) { MenuTitle() }
+                item(key = HeaderKey, span = { GridItemSpan(maxLineSpan) }) {
+                    MenuHeader(isDefaultHome = isDefaultHome, actions = actions, modifier = Modifier.padding(bottom = 4.dp))
+                }
                 if (showHomeCard) {
                     item(key = HomeCardKey, span = { GridItemSpan(maxLineSpan) }) {
                         HomeCard(onMakeHome = actions.onMakeHome, onDismiss = actions.onDismissHomeCard)
@@ -273,19 +297,54 @@ private fun ScrollToTopEffects(gridState: LazyGridState, shuffleId: Int?, scroll
 private const val HeaderKey = "header"
 private const val HomeCardKey = "home_card"
 
+/** The "Glitch" title with the More options (⋮) menu at the end of the row. */
 @Composable
-private fun MenuTitle() {
-    Text(
-        text = stringResource(R.string.app_name),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 8.dp, end = 8.dp, top = 4.dp, bottom = 12.dp)
-            .semantics { heading() },
-        style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-    )
+private fun MenuHeader(isDefaultHome: Boolean, actions: MenuActions, modifier: Modifier = Modifier) {
+    Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            text = stringResource(R.string.app_name),
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 8.dp, end = 8.dp)
+                .semantics { heading() },
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        HeaderMenu(headerMenuItems(isDefaultHome, actions))
+    }
+}
+
+@Composable
+private fun HeaderMenu(items: List<HeaderMenuItem>) {
+    var open by remember { mutableStateOf(false) }
+    val moreOptions = stringResource(R.string.menu_more_options)
+    Box {
+        IconButton(
+            onClick = { open = true },
+            // Explicit 48 dp: the minimum touch target, whatever the IconButton default is.
+            modifier = Modifier
+                .size(48.dp)
+                .testTag(MenuTags.HEADER_MENU)
+                .semantics { contentDescription = moreOptions },
+        ) {
+            // A vertical ellipsis drawn in place, so no icon library is needed.
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                repeat(3) {
+                    Box(
+                        Modifier
+                            .size(4.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.onSurfaceVariant),
+                    )
+                }
+            }
+        }
+        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+            items.forEach { item -> MenuItem(stringResource(item.label), { open = false }, item.onClick) }
+        }
+    }
 }
 
 @Composable
@@ -468,4 +527,35 @@ private fun CenteredBox(
             .padding(24.dp),
         contentAlignment = Alignment.Center,
     ) { content() }
+}
+
+/** Header at the top, a status message centered below it. */
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+private fun StatusLayout(
+    contentPadding: PaddingValues,
+    modifier: Modifier,
+    isDefaultHome: Boolean,
+    actions: MenuActions,
+    content: @Composable () -> Unit,
+) {
+    Column(
+        modifier
+            .fillMaxSize()
+            .padding(contentPadding)
+            .semantics { testTagsAsResourceId = true },
+    ) {
+        MenuHeader(
+            isDefaultHome = isDefaultHome,
+            actions = actions,
+            modifier = Modifier.padding(start = GridPadding, end = GridPadding, top = GridPadding),
+        )
+        Box(
+            Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .padding(24.dp),
+            contentAlignment = Alignment.Center,
+        ) { content() }
+    }
 }
