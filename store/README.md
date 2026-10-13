@@ -46,7 +46,7 @@ Steps marked **(owner)** need your Google account, money, identity or private ke
 - [ ] Verify access to a physical Android device when Play Console asks (done through the Play Console mobile app).
 
 ### 2. Create an upload key (owner, once)
-The upload key signs the bundles you upload. Google then re-signs the app with its own app signing key (step 4).
+This is the same release key the GitHub release pipeline uses (see `RELEASING.md`). Use it as the Play app signing key too (step 4), so people who installed Glitch from GitHub can also receive updates from Play.
 ```
 keytool -genkeypair -v \
   -keystore ~/keys/glitch-upload.jks \
@@ -77,7 +77,7 @@ keytool -genkeypair -v \
 
 ### 4. Create the app and turn on Play App Signing (owner)
 - [ ] Play Console > **Create app**: name "Glitch: Break the Autopilot", default language English (United States), App, Free. Accept the declarations.
-- [ ] When you upload the first AAB, accept **Play App Signing** (Google-managed app signing key). This is the default and lets you reset a lost upload key later.
+- [ ] When you upload the first AAB, set up **Play App Signing** with **your own key**: choose "Use a different app signing key" / "Export and upload a key from Java keystore" and follow Play's steps with the release key from `RELEASING.md`. If you accept a Google-generated key instead, Play installs and GitHub installs have different signatures and can't update each other.
 
 ### 5. Host the privacy policy (owner)
 Play needs a public URL. GitHub Pages is free once the repository is public:
