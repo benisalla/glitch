@@ -69,11 +69,11 @@ keytool -genkeypair -v \
 - [ ] When you upload the first AAB, accept **Play App Signing** (Google-managed app signing key). This is the default and lets you reset a lost upload key later.
 
 ### 5. Host the privacy policy (owner)
-Play needs a public URL. The simplest option is GitHub Pages:
-- [ ] The GitHub repository must be **public** (Pages on a private repo needs a paid plan).
-- [ ] On GitHub: repo **Settings > Pages > Build and deployment**: Source "Deploy from a branch", Branch `main`, folder `/docs`. Save.
-- [ ] After a minute the site is at `https://<github-user>.github.io/<repo>/`. The policy is at `https://<github-user>.github.io/<repo>/privacy-policy.html`. Open it in a browser to confirm.
-- [ ] Alternative if the repo stays private: paste the text of `docs/privacy-policy.md` into a free Google Sites page or a public GitHub Gist and use that URL.
+Play needs a public URL. This repository is **private**, and GitHub Pages on a private repo needs a paid plan, so use one of these:
+- [ ] **Public GitHub Gist (simplest):** `gh gist create --public docs/privacy-policy.md`, open the gist and use its URL. Only the policy becomes public, not the code.
+- [ ] **Google Sites:** paste the text of `docs/privacy-policy.md` into a free page and publish it.
+- [ ] **GitHub Pages** (only if the repo is made public or you have a paid plan): repo **Settings > Pages**, Source "Deploy from a branch", Branch `main`, folder `/docs`. The policy is then at `https://benisalla.github.io/shuffle-app-menu/privacy-policy.html`.
+- [ ] Open the URL in a private browser window to confirm it loads without signing in.
 
 ### 6. Fill in the store listing
 Play Console > **Grow > Store presence > Main store listing**:
@@ -128,7 +128,7 @@ Do not add text overlays that claim benefits such as better focus or memory.
 ## Things only the owner can do
 - Create and pay for the Play developer account, verify identity and device.
 - Create and safely back up the upload keystore and its passwords; write `keystore.properties`.
-- Make the GitHub repo public and enable GitHub Pages (or host the policy elsewhere).
+- Publish the privacy policy at a public URL (Gist, Google Sites, or GitHub Pages).
 - Recruit 12+ closed testers and keep them for 14 consecutive days.
 - Capture screenshots on a device or emulator.
 - Submit forms, apply for production, and press "Send for review".
