@@ -1,6 +1,4 @@
----
-title: Glitch - Privacy Policy
----
+<!-- Source text. The published page is docs/privacy-policy.html (https://benisalla.github.io/glitch/privacy-policy.html); keep both in sync. -->
 
 # Privacy Policy for Glitch
 

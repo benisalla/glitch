@@ -10,6 +10,12 @@
 Glitch is an Android app for breaking the autopilot on your phone. Its first feature is the shuffle: your installed apps in a new random order every time you open Glitch, so you look instead of tapping by position.
 
 <p align="center">
+  <a href="https://github.com/benisalla/glitch/releases/latest/download/glitch.apk"><b>⬇ Download Glitch for Android</b></a>
+  &nbsp;·&nbsp; <a href="https://benisalla.github.io/glitch/">Website</a>
+  &nbsp;·&nbsp; <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/benisalla/glitch">Get updates with Obtainium</a>
+</p>
+
+<p align="center">
   <img src="store/screenshots/phone-1-light.png" width="260" alt="Glitch in light mode">
   &nbsp;&nbsp;
   <img src="store/screenshots/phone-2-dark.png" width="260" alt="Glitch in dark mode">
@@ -56,6 +62,13 @@ Commands (run from the repo root):
 
 ## Install on a phone (including Samsung Galaxy)
 The steps below are standard Android procedures; menu names can differ slightly between One UI versions.
+
+**Easiest: download the APK**
+1. On your phone, open [glitch.apk](https://github.com/benisalla/glitch/releases/latest/download/glitch.apk) (always the latest release) or scan the QR code on the [website](https://benisalla.github.io/glitch/#install).
+2. Open the downloaded file. When Android asks, allow "Install unknown apps" for your browser or My Files, then tap Install.
+3. Android or Play Protect may warn you because Glitch is not on the Play Store yet. Glitch has no permissions and no internet access, and its source code is right here.
+
+For automatic updates, add `https://github.com/benisalla/glitch` in [Obtainium](https://obtainium.imranr.dev/).
 
 **Option A: with adb (from a computer)**
 1. On the phone, open Settings > About phone > Software information and tap "Build number" seven times to enable Developer options.

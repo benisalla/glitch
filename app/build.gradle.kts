@@ -103,6 +103,13 @@ android {
         compose = true
     }
 
+    // AGP otherwise puts an encrypted dependency report, readable only by Google, into the
+    // APK signing block. It is re-encrypted on every build, so APKs would not be reproducible
+    // (the release workflow checks this). The AAB keeps it for Play Console.
+    dependenciesInfo {
+        includeInApk = false
+    }
+
     lint {
         warningsAsErrors = false
         abortOnError = true

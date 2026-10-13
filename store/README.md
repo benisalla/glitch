@@ -45,19 +45,14 @@ Steps marked **(owner)** need your Google account, money, identity or private ke
 - [ ] Complete identity verification (government ID) and verify your contact email and phone number.
 - [ ] Verify access to a physical Android device when Play Console asks (done through the Play Console mobile app).
 
-### 2. Create an upload key (owner, once)
-The upload key signs the bundles you upload. Google then re-signs the app with its own app signing key (step 4).
-```
-keytool -genkeypair -v \
-  -keystore ~/keys/glitch-upload.jks \
-  -alias upload -keyalg RSA -keysize 2048 -validity 10000
-```
+### 2. The release key (owner, once)
+Use the **one** release key you created in [`RELEASING.md`](../RELEASING.md) §1 (`~/keys/glitch-release.jks`, alias `glitch`). Do not create a second key. The GitHub release pipeline signs with it, and it is also the Play app signing key (step 4), so people who installed Glitch from GitHub can receive updates from Play.
 - [ ] Store the `.jks` file **outside the repo** and back it up (password manager or encrypted drive). Never commit it.
 - [ ] Create `keystore.properties` in the repo root (it must stay untracked; it is a secret):
   ```
-  storeFile=/home/<you>/keys/glitch-upload.jks
+  storeFile=/home/<you>/keys/glitch-release.jks
   storePassword=...
-  keyAlias=upload
+  keyAlias=glitch
   keyPassword=...
   ```
 
@@ -77,7 +72,7 @@ keytool -genkeypair -v \
 
 ### 4. Create the app and turn on Play App Signing (owner)
 - [ ] Play Console > **Create app**: name "Glitch: Break the Autopilot", default language English (United States), App, Free. Accept the declarations.
-- [ ] When you upload the first AAB, accept **Play App Signing** (Google-managed app signing key). This is the default and lets you reset a lost upload key later.
+- [ ] When you upload the first AAB, set up **Play App Signing** with **your own key**: choose "Use a different app signing key" / "Export and upload a key from Java keystore" and follow Play's steps with the release key from `RELEASING.md`. If you accept a Google-generated key instead, Play installs and GitHub installs have different signatures and can't update each other.
 
 ### 5. Host the privacy policy (owner)
 Play needs a public URL. GitHub Pages is free once the repository is public:

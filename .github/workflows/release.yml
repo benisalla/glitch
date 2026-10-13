@@ -1,0 +1,253 @@
+name: Release
+
+# Pushing a tag such as v1.2.3 builds, signs and publishes a GitHub Release.
+# Running it by hand (workflow_dispatch) is a dry run: everything except publishing,
+# with the signed files kept as a workflow artifact for 7 days.
+# See RELEASING.md for the one-time key and secrets setup.
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Check, build and sign
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      version_code: ${{ steps.version.outputs.version_code }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      # Only reviewed code gets signed: a tag must point at a commit on main, and a
+      # dry run must be started from main. Checked before any secret is read.
+      - name: Check the commit is on main
+        env:
+          EVENT: ${{ github.event_name }}
+          REF: ${{ github.ref }}
+        run: |
+          if [ "$EVENT" = "workflow_dispatch" ] && [ "$REF" != "refs/heads/main" ]; then
+            echo "::error::Run the release dry run from main, not $REF."
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::$GITHUB_SHA is not on main. Merge the change first, then tag the merge commit."
+            exit 1
+          fi
+
+      # Tag v1.2.3 must match versionName "1.2.3". A dry run uses versionName as is.
+      - name: Read versionName and check it against the tag
+        id: version
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          version="$(sed -nE 's/^[[:space:]]*versionName[[:space:]]*=[[:space:]]*"([^"]+)".*/\1/p' app/build.gradle.kts)"
+          if [ -z "$version" ] || [ "$(printf '%s\n' "$version" | wc -l)" -ne 1 ]; then
+            echo "::error::Could not read exactly one versionName from app/build.gradle.kts."
+            exit 1
+          fi
+          if ! printf '%s' "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$'; then
+            echo "::error::versionName '$version' is not of the form X.Y.Z (optionally -suffix)."
+            exit 1
+          fi
+          if [ "$REF_TYPE" = "tag" ] && [ "$REF_NAME" != "v$version" ]; then
+            echo "::error::Tag '$REF_NAME' does not match versionName '$version' (expected tag 'v$version'). Bump versionName or fix the tag."
+            exit 1
+          fi
+          code="$(sed -nE 's/^[[:space:]]*versionCode[[:space:]]*=[[:space:]]*([0-9]+).*/\1/p' app/build.gradle.kts)"
+          if ! printf '%s' "$code" | grep -Eq '^[1-9][0-9]*$'; then
+            echo "::error::Could not read a positive integer versionCode from app/build.gradle.kts."
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "version_code=$code" >> "$GITHUB_OUTPUT"
+          echo "Releasing Glitch $version"
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # Read-only cache: a release build never writes the cache other runs restore from.
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+        with:
+          cache-provider: basic
+          cache-read-only: true
+          validate-wrappers: true
+
+      - name: Install Android SDK platform 37 and build-tools 36.0.0
+        run: |
+          # `yes` exits via SIGPIPE; ignore that so `bash -eo pipefail` does not fail the step.
+          (yes || true) | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37.0" "build-tools;36.0.0"
+
+      # Same gate as CI. No signing secrets are present in the environment here.
+      - name: Assemble, lint, and unit test
+        run: ./gradlew :app:assembleDebug :app:lintDebug :app:testDebugUnitTest :app:lintRelease --console=plain
+
+      # Never publish an unsigned APK: people could not install it over, or update to, a signed one.
+      - name: Decode the release keystore
+        env:
+          GLITCH_KEYSTORE_BASE64: ${{ secrets.GLITCH_KEYSTORE_BASE64 }}
+          GLITCH_KEYSTORE_PASSWORD: ${{ secrets.GLITCH_KEYSTORE_PASSWORD }}
+          GLITCH_KEY_ALIAS: ${{ secrets.GLITCH_KEY_ALIAS }}
+          GLITCH_KEY_PASSWORD: ${{ secrets.GLITCH_KEY_PASSWORD }}
+        run: |
+          missing=""
+          for name in GLITCH_KEYSTORE_BASE64 GLITCH_KEYSTORE_PASSWORD GLITCH_KEY_ALIAS GLITCH_KEY_PASSWORD; do
+            if [ -z "${!name}" ]; then missing="$missing $name"; fi
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Missing repository secrets:$missing. Add them as described in RELEASING.md. Refusing to build an unsigned release."
+            exit 1
+          fi
+          keystore="$RUNNER_TEMP/glitch-release.jks"
+          umask 077
+          if ! printf '%s' "$GLITCH_KEYSTORE_BASE64" | base64 --decode > "$keystore" || [ ! -s "$keystore" ]; then
+            echo "::error::GLITCH_KEYSTORE_BASE64 is not valid base64. Re-create it with: base64 -w0 key.jks"
+            exit 1
+          fi
+
+      - name: Build signed release APK and bundle
+        env:
+          GLITCH_KEYSTORE_PATH: ${{ runner.temp }}/glitch-release.jks
+          GLITCH_KEYSTORE_PASSWORD: ${{ secrets.GLITCH_KEYSTORE_PASSWORD }}
+          GLITCH_KEY_ALIAS: ${{ secrets.GLITCH_KEY_ALIAS }}
+          GLITCH_KEY_PASSWORD: ${{ secrets.GLITCH_KEY_PASSWORD }}
+        run: ./gradlew :app:assembleRelease :app:bundleRelease --console=plain
+
+      - name: Verify the APK signature
+        run: |
+          apksigner="$ANDROID_HOME/build-tools/36.0.0/apksigner"
+          "$apksigner" verify --verbose --print-certs app/build/outputs/apk/release/app-release.apk \
+            | grep -E '^(Verifie[sd]|Signer #1 certificate (DN|SHA-256))'
+          jarsigner -verify app/build/outputs/bundle/release/app-release.aab | grep -qx 'jar verified.' \
+            || { echo "::error::The release bundle is not signed."; exit 1; }
+
+      # Rebuild from scratch and compare: the same commit should give byte-identical outputs.
+      - name: Check the build is reproducible
+        env:
+          GLITCH_KEYSTORE_PATH: ${{ runner.temp }}/glitch-release.jks
+          GLITCH_KEYSTORE_PASSWORD: ${{ secrets.GLITCH_KEYSTORE_PASSWORD }}
+          GLITCH_KEY_ALIAS: ${{ secrets.GLITCH_KEY_ALIAS }}
+          GLITCH_KEY_PASSWORD: ${{ secrets.GLITCH_KEY_PASSWORD }}
+        run: |
+          first="$RUNNER_TEMP/first-build"
+          mkdir -p "$first"
+          cp app/build/outputs/apk/release/app-release.apk app/build/outputs/bundle/release/app-release.aab "$first/"
+          ./gradlew :app:assembleRelease :app:bundleRelease --rerun-tasks --no-build-cache --console=plain
+          cmp "$first/app-release.apk" app/build/outputs/apk/release/app-release.apk
+          cmp "$first/app-release.aab" app/build/outputs/bundle/release/app-release.aab
+          echo "Both builds are byte-identical."
+
+      - name: Collect release files
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          out="$RUNNER_TEMP/release"
+          mkdir -p "$out"
+          cp app/build/outputs/apk/release/app-release.apk "$out/glitch-$VERSION.apk"
+          cp app/build/outputs/apk/release/app-release.apk "$out/glitch.apk"
+          cp app/build/outputs/bundle/release/app-release.aab "$out/glitch-$VERSION.aab"
+          cp app/build/outputs/mapping/release/mapping.txt "$out/glitch-$VERSION-mapping.txt"
+          (cd "$out" && sha256sum glitch.apk "glitch-$VERSION.apk" "glitch-$VERSION.aab" "glitch-$VERSION-mapping.txt" > SHA256SUMS.txt)
+          cat "$out/SHA256SUMS.txt"
+
+      - name: Delete the keystore
+        if: ${{ always() }}
+        run: rm -f "$RUNNER_TEMP/glitch-release.jks"
+
+      - name: Upload release files
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: glitch-release
+          path: ${{ runner.temp }}/release/
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    name: Publish GitHub Release
+    needs: build
+    if: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Download release files
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: glitch-release
+          path: release
+
+      # F-Droid reads changelogs/<versionCode>.txt; fall back to default.txt.
+      - name: Write release notes
+        env:
+          VERSION_CODE: ${{ needs.build.outputs.version_code }}
+        run: |
+          changelogs=store/fastlane/metadata/android/en-US/changelogs
+          notes="$changelogs/$VERSION_CODE.txt"
+          [ -f "$notes" ] || notes="$changelogs/default.txt"
+          {
+            cat "$notes"
+            printf '\n\n'
+            cat <<'EOF'
+          ## Install on Android
+
+          1. On your phone, download **glitch.apk** from the Assets list below.
+          2. Open the downloaded file. If Android asks, allow "Install unknown apps" for your browser (or file manager), then tap **Install**.
+          3. Google Play Protect may warn you because the app does not come from Google Play. Glitch asks for no permissions and has no internet access. Only install a file you downloaded from github.com/benisalla/glitch, and check its SHA-256 against `SHA256SUMS.txt` if in doubt.
+
+          Later versions install over this one as an update, because every release is signed with the same key.
+
+          EOF
+          } > release-notes.md
+          cat release-notes.md
+
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          # Pre-releases never become "latest"; neither does a patch to an older line,
+          # so releases/latest/download/glitch.apk always serves the newest version.
+          case "$VERSION" in
+            *-*) latest="--prerelease" ;;
+            *)
+              highest="$(git tag -l 'v*' | grep -v -e '-' | sed 's/^v//' | sort -V | tail -n 1)"
+              if [ "$highest" = "$VERSION" ]; then latest="--latest"; else latest="--latest=false"; fi
+              ;;
+          esac
+          gh release create "$TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --verify-tag \
+            --title "Glitch $VERSION" \
+            --notes-file release-notes.md \
+            $latest \
+            release/glitch.apk \
+            "release/glitch-$VERSION.apk" \
+            "release/glitch-$VERSION.aab" \
+            "release/glitch-$VERSION-mapping.txt" \
+            release/SHA256SUMS.txt
