@@ -4,6 +4,10 @@ import android.content.Context
 import android.content.Intent
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import android.content.pm.PackageManager
+import com.benisalla.glitch.MainActivity
+import com.benisalla.glitch.menu.Dock
+import com.benisalla.glitch.menu.SharedPreferencesMenuStore
 import com.benisalla.glitch.model.AppEntry
 import com.benisalla.glitch.model.LaunchResult
 import kotlinx.coroutines.runBlocking
@@ -11,6 +15,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -70,5 +75,62 @@ class AppsInstrumentedTest {
     @Test
     fun launchingBogusEntryIsUnavailable() {
         assertEquals(LaunchResult.Unavailable, IntentAppLauncher(context).launch(bogus))
+    }
+
+    @Test
+    fun manifestOffersMainActivityAsOptionalHome() {
+        val home = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME).setPackage(context.packageName)
+        @Suppress("DEPRECATION")
+        val handlers = context.packageManager.queryIntentActivities(home, PackageManager.MATCH_DEFAULT_ONLY)
+        assertEquals(listOf(MainActivity::class.java.name), handlers.map { it.activityInfo.name })
+        assertTrue(isHomeIntent(home))
+        assertTrue(!isHomeIntent(Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)))
+    }
+
+    @Test
+    fun isDefaultHome_falseWhileAnotherLauncherHoldsTheRole() {
+        // Regression: resolving the HOME intent answered "Glitch" whenever the real default launcher
+        // was hidden by package visibility (e.g. the Pixel launcher has no LAUNCHER activity).
+        assumeTrue(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q)
+        val roleManager = context.getSystemService(android.app.role.RoleManager::class.java)
+        assumeTrue(!roleManager.isRoleHeld(android.app.role.RoleManager.ROLE_HOME))
+        assertTrue(!isDefaultHome(context))
+    }
+
+    @Test
+    fun defaultDockAppsMapToInstalledLauncherEntries() = runBlocking {
+        val apps = catalog.loadApps()
+        val slots = resolveDefaultDockApps(context)
+        assertEquals("dialer, messaging, camera, browser", 4, slots.size)
+        val dock = Dock.defaults(slots, apps)
+        val keys = apps.map { it.key }.toSet()
+        assertTrue(dock.size <= Dock.MAX_APPS)
+        assertEquals(dock.size, dock.toSet().size)
+        assertTrue("$dock not all launchable", keys.containsAll(dock))
+    }
+
+    @Test
+    fun systemScreenIntentsResolve() = runBlocking {
+        val pm = context.packageManager
+        val entry = catalog.loadApps().first()
+        @Suppress("DEPRECATION")
+        assertNotNull(pm.resolveActivity(appInfoIntent(entry), 0))
+        @Suppress("DEPRECATION")
+        assertNotNull(pm.resolveActivity(homeSettingsIntent(), 0))
+    }
+
+    @Test
+    fun menuStoreRoundTripsDockInOrder() {
+        context.getSharedPreferences("menu", Context.MODE_PRIVATE).edit().clear().commit()
+        val store = SharedPreferencesMenuStore(context)
+        assertNull("never set up", store.loadDock())
+        store.saveDock(listOf("b/b.Main", "a/a.Main"))
+        assertEquals(listOf("b/b.Main", "a/a.Main"), SharedPreferencesMenuStore(context).loadDock())
+        store.saveDock(emptyList())
+        assertEquals(emptyList<String>(), store.loadDock())
+        assertTrue(!store.isHomeCardDismissed())
+        store.dismissHomeCard()
+        assertTrue(SharedPreferencesMenuStore(context).isHomeCardDismissed())
+        context.getSharedPreferences("menu", Context.MODE_PRIVATE).edit().clear().commit()
     }
 }
