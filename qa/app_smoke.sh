@@ -1,18 +1,22 @@
 #!/usr/bin/env bash
-# Glitch v1.1 launcher smoke test (adb + uiautomator).
+# Glitch app smoke test (adb + uiautomator). Glitch is a normal app, never a home screen.
 #
 # Usage:
 #   ./gradlew :app:installDebug          # or: adb install -r app/build/outputs/apk/debug/app-debug.apk
-#   qa/launcher_smoke.sh                 # full launcher run
-#   qa/launcher_smoke.sh --parse-only    # just open Glitch and print the parsed dock and grid
-#   qa/launcher_smoke.sh --parse-file dump.xml   # parse a saved uiautomator dump, no device needed
+#   qa/app_smoke.sh                      # full run
+#   qa/app_smoke.sh --parse-only         # just open Glitch and print the parsed dock and grid
+#   qa/app_smoke.sh --parse-file dump.xml   # parse a saved uiautomator dump, no device needed
+#
+# Checks: no user-facing permissions; no HOME activity and not the HOME role holder; grid and
+# dock parse (dock apps never in the grid, at most 4); rotation keeps the order and the dock;
+# leaving for another app and reopening gives a new order; Back leaves Glitch like any app.
 #
 # Environment (all optional):
 #   ANDROID_SERIAL   device to use when more than one is connected
 #   PKG              application id               (default com.benisalla.glitch)
-#   ACTIVITY         activity to start in app mode (default .MainActivity)
+#   ACTIVITY         activity to start             (default .MainActivity)
 #   OTHER_ACTION     intent action for "use another app" (default android.settings.SETTINGS)
-#   SHUFFLE_TRIES    unlock attempts before declaring "no reshuffle" (default 3)
+#   SHUFFLE_TRIES    reopen attempts before declaring "no reshuffle" (default 3)
 #   SNAP_TRIES       max dumps per snapshot while waiting for two identical ones (default 6)
 #   DOCK_RID         resource-id (testTag) substring of dock tiles (default dock_tile)
 #   GRID_RID         resource-id (testTag) substring of grid tiles (default app_tile)
@@ -20,15 +24,12 @@
 #                    geometry instead: tiles outside the scrollable grid, or, if the grid does
 #                    not scroll, tiles whose top edge is in the bottom DOCK_ZONE_PCT percent of
 #                    the Glitch window (default 15).
-#   EXPECT_DOCK      expected dock labels joined by " | ", checked once on the home screen,
+#   EXPECT_DOCK      expected dock labels joined by " | ", checked on the first snapshot,
 #                    e.g. "Phone | Messages | Camera | Chrome" for a first run on shuffle_api35
 #   EXCLUDE_DESC     extended regex of content descriptions that are not app tiles
 #   KEEP_DUMPS=1     keep the raw uiautomator XML files in the work directory
 #
-# Exit codes: 0 all checks passed, 1 at least one FAIL, 2 not a launcher build
-# (launcher checks skipped; app-mode checks still run and are reported), 3 setup error.
-# On Android 9 and older (API < 29) there is no `cmd role`, so the home-mode checks are
-# SKIPped with a message (the role must be set by hand there) and the run can still exit 0.
+# Exit codes: 0 all checks passed, 1 at least one FAIL, 3 setup error.
 #
 # Only needs adb, grep, sed and awk on the host.
 
@@ -42,10 +43,10 @@ SNAP_TRIES="${SNAP_TRIES:-6}"
 DOCK_RID="${DOCK_RID:-dock_tile}"
 GRID_RID="${GRID_RID:-app_tile}"
 DOCK_ZONE_PCT="${DOCK_ZONE_PCT:-15}"
-EXCLUDE_DESC="${EXCLUDE_DESC:-^(Loading apps|Glitch|Set as home|Not now|.*[Hh]ome (screen|app).*)$}"
+EXCLUDE_DESC="${EXCLUDE_DESC:-^(Loading apps|Glitch)$}"
 EXPECT_DOCK="${EXPECT_DOCK:-}"
 KEEP_DUMPS="${KEEP_DUMPS:-0}"
-HOME_ROLE="android.app.role.HOME"
+HOME_ROLE="android.app.role.HOME"   # only to check that Glitch does NOT hold it
 
 PARSE_ONLY=0
 PARSE_FILE=""
@@ -64,12 +65,8 @@ PASSES=0
 FAILS=0
 SKIPS=0
 FAILED_NAMES=""
-LAUNCHER_BUILD=0
 SDK=0
-ROLE_SUPPORTED=0   # `cmd role` exists from Android 10 (API 29)
-HOME_MODE=0        # launcher build and the role can be set from adb: run the home-mode checks
 RESTORE_NEEDED=0
-PREV_HOME=""
 PREV_USER_ROTATION=""
 PREV_ACCEL_ROTATION=""
 
@@ -97,20 +94,6 @@ restore() {
       set_setting user_rotation "$PREV_USER_ROTATION"
     fi
     log "rotation restored (user_rotation=${PREV_USER_ROTATION:-?}, accelerometer_rotation=${PREV_ACCEL_ROTATION:-?})"
-    local now
-    now="$(home_holder)"
-    if [ "$ROLE_SUPPORTED" = 0 ]; then
-      log "home role untouched (no cmd role on API $SDK)"
-    elif [ "$now" != "$PREV_HOME" ]; then
-      if [ -n "$PREV_HOME" ]; then
-        adb_sh "cmd role add-role-holder $HOME_ROLE $PREV_HOME" > /dev/null
-      else
-        adb_sh "cmd role remove-role-holder $HOME_ROLE $PKG" > /dev/null
-      fi
-      log "home role restored to '${PREV_HOME:-<none>}' (now '$(home_holder)')"
-    else
-      log "home role unchanged ('${PREV_HOME:-<none>}')"
-    fi
     adb_sh input keyevent KEYCODE_HOME > /dev/null
   fi
   if [ "$KEEP_DUMPS" = 1 ]; then
@@ -129,11 +112,6 @@ set_setting() {
     || adb_sh "content insert --uri content://settings/system --bind name:s:$1 --bind value:i:$2" > /dev/null
 }
 
-home_holder() {
-  [ "$ROLE_SUPPORTED" = 1 ] || return 0
-  adb_sh "cmd role get-role-holders $HOME_ROLE" | grep -v '^$' | head -n 1 || true
-}
-
 top_activity() {
   adb_sh dumpsys activity activities \
     | grep -m 1 -E 'topResumedActivity|mResumedActivity' \
@@ -144,15 +122,6 @@ wait_for_glitch() {
   local i
   for i in $(seq 1 25); do
     case "$(top_activity)" in "$PKG"/*) return 0 ;; esac
-    sleep 0.4
-  done
-  return 1
-}
-
-wait_awake_state() { # $1 = Awake|Asleep|Dozing
-  local i
-  for i in $(seq 1 25); do
-    if adb_sh dumpsys power | grep -q "mWakefulness=$1"; then return 0; fi
     sleep 0.4
   done
   return 1
@@ -345,21 +314,6 @@ expect_reshuffle() {
 }
 
 # ---------------------------------------------------------------- actions
-press_home() { adb_sh input keyevent KEYCODE_HOME > /dev/null; wait_for_glitch || true; }
-
-screen_cycle() {
-  adb_sh input keyevent KEYCODE_SLEEP > /dev/null
-  wait_awake_state Asleep || wait_awake_state Dozing || log "warning: device did not report Asleep"
-  sleep 1
-  adb_sh input keyevent KEYCODE_WAKEUP > /dev/null
-  wait_awake_state Awake || log "warning: device did not report Awake"
-  adb_sh "wm dismiss-keyguard" > /dev/null
-  sleep 1
-  # Some images land on the keyguard or the previous app; Home shows the launcher in all cases.
-  case "$(top_activity)" in "$PKG"/*) ;; *) press_home ;; esac
-  wait_for_glitch || log "warning: Glitch is not in front after unlock (top: $(top_activity))"
-}
-
 open_app_mode() {
   adb_sh "am start -W -n $PKG/$ACTIVITY" > /dev/null || log "warning: am start $PKG/$ACTIVITY failed"
   wait_for_glitch || log "warning: Glitch is not in front (top: $(top_activity))"
@@ -398,7 +352,6 @@ if [ -z "${ANDROID_SERIAL:-}" ] && [ "$(printf '%s\n' "$devices" | wc -l)" -gt 1
 fi
 SDK="$(adb_sh getprop ro.build.version.sdk)"
 case "$SDK" in ''|*[!0-9]*) SDK=0 ;; esac
-if [ "$SDK" -ge 29 ]; then ROLE_SUPPORTED=1; fi
 log "device: ${ANDROID_SERIAL:-$devices} (API $SDK)"
 if ! adb_sh pm path "$PKG" | grep -q '^package:'; then
   echo "$PKG is not installed; run ./gradlew :app:installDebug first" >&2; exit 3
@@ -424,138 +377,71 @@ if [ "$PARSE_ONLY" = 1 ]; then
   exit $(( FAILS > 0 ))
 fi
 
-PREV_HOME="$(home_holder)"
 PREV_USER_ROTATION="$(adb_sh settings get system user_rotation)"
 PREV_ACCEL_ROTATION="$(adb_sh settings get system accelerometer_rotation)"
 case "$PREV_USER_ROTATION" in [0-3]) ;; *) PREV_USER_ROTATION=0 ;; esac
 case "$PREV_ACCEL_ROTATION" in [01]) ;; *) PREV_ACCEL_ROTATION=1 ;; esac
 RESTORE_NEEDED=1
-log "previous home: '${PREV_HOME:-<none>}', user_rotation=$PREV_USER_ROTATION, accelerometer_rotation=$PREV_ACCEL_ROTATION"
+log "user_rotation=$PREV_USER_ROTATION, accelerometer_rotation=$PREV_ACCEL_ROTATION"
 rotate_to 0
 
-if adb_sh "cmd package query-activities --brief -a android.intent.action.MAIN -c android.intent.category.HOME" \
-     | grep -q "$PKG/"; then
-  LAUNCHER_BUILD=1
-  if [ "$ROLE_SUPPORTED" = 1 ]; then
-    HOME_MODE=1
-  else
-    printf '\nHOME-MODE CHECKS SKIPPED: this device is API %s; `cmd role` needs Android 10 (API 29) or newer,\n' "$SDK"
-    printf 'so the default home cannot be set from adb. Set Glitch as home by hand to test home mode.\n'
-    printf 'App-mode checks still run.\n'
-  fi
+# ---------------------------------------------------------------- not a home app
+info "Not a home app"
+home_handlers="$(adb_sh "cmd package query-activities --brief -a android.intent.action.MAIN -c android.intent.category.HOME" || true)"
+if printf '%s\n' "$home_handlers" | grep -q "$PKG/"; then
+  fail "no HOME activity" "$PKG declares a MAIN/HOME activity"
 else
-  printf '\nNOT A LAUNCHER BUILD: %s declares no MAIN/HOME/DEFAULT activity, so it cannot hold %s.\n' "$PKG" "$HOME_ROLE"
-  printf 'Launcher checks are skipped; app-mode checks still run so the parsing is exercised.\n'
+  pass "no HOME activity"
 fi
-
-# ---------------------------------------------------------------- launcher checks
-if [ "$HOME_MODE" = 1 ]; then
-  info "Launcher mode"
-  adb_sh "cmd role add-role-holder $HOME_ROLE $PKG" > /dev/null || true
-  if [ "$(home_holder)" = "$PKG" ]; then pass "set as default home ($HOME_ROLE)"
-  else fail "set as default home ($HOME_ROLE)" "role holder is '$(home_holder)'"; fi
-
-  press_home
-  if wait_for_glitch; then pass "HOME shows Glitch"; else fail "HOME shows Glitch" "top activity: $(top_activity)"; fi
-  snapshot home0
-  if [ -s "$WORK/home0.grid" ]; then pass "grid tiles parsed ($(wc -l < "$WORK/home0.grid") visible)"
-  else fail "grid tiles parsed" "no grid tiles found in dump"; fi
-  nd="$(wc -l < "$WORK/home0.dock")"
-  if [ "$nd" -ge 1 ] && [ "$nd" -le 4 ]; then pass "dock has 1..4 apps ($nd)"
-  else fail "dock has 1..4 apps" "found $nd (dock rule: $(meta home0 dockrule); set DOCK_RID if the heuristic is wrong)"; fi
-  if [ -n "$EXPECT_DOCK" ]; then
-    if [ "$(joined "$WORK/home0.dock")" = "$EXPECT_DOCK" ]; then pass "dock is: $EXPECT_DOCK"
-    else fail "dock is: $EXPECT_DOCK" "found: $(joined "$WORK/home0.dock")"; fi
-  fi
-  overlap="$(grep -Fxf "$WORK/home0.dock" "$WORK/home0.grid" || true)"
-  if [ -z "$overlap" ]; then pass "dock apps are not in the grid"
-  else fail "dock apps are not in the grid" "in both: $(printf '%s' "$overlap" | tr '\n' ',')"; fi
-
-  adb_sh input keyevent KEYCODE_BACK > /dev/null
-  sleep 1
-  snapshot back
-  case "$(top_activity)" in
-    "$PKG"/*) if same_order home0 back; then pass "Back on home does nothing"
-              else fail "Back on home does nothing" "order changed after Back"; fi ;;
-    *) fail "Back on home does nothing" "Glitch left the foreground (top: $(top_activity))" ;;
-  esac
-
-  adb_sh input keyevent KEYCODE_HOME > /dev/null
-  sleep 1
-  snapshot home_again
-  if same_order home0 home_again; then pass "Home while on Glitch keeps the order"
-  else fail "Home while on Glitch keeps the order" "order changed"; fi
-
-  adb_sh "am start -W -a $OTHER_ACTION" > /dev/null || log "warning: could not start $OTHER_ACTION"
-  sleep 2
-  case "$(top_activity)" in
-    "$PKG"/*) fail "other app opens over Glitch" "Glitch still in front" ;;
-    *) log "in front: $(top_activity)" ;;
-  esac
-  press_home
-  snapshot after_app
-  if same_order home0 after_app; then pass "returning Home after another app keeps the order"
-  else fail "returning Home after another app keeps the order" "before: $(joined "$WORK/home0.grid")"; fi
-  check_dock_stable home0 after_app "after another app"
-
-  expect_reshuffle "screen off/on reshuffles the grid" after_app screen_cycle unlock
-  unlocked="$LAST_SNAP"
-  check_dock_stable home0 "$unlocked" "after unlock"
-
-  rotate_to 1
-  snapshot land
-  if [ "$(meta land rotation)" = 1 ] || [ "$(meta land rotation)" = 3 ]; then
-    if same_order "$unlocked" land; then pass "rotation to landscape keeps the order"
-    else fail "rotation to landscape keeps the order" "portrait: $(joined "$WORK/$unlocked.grid")"; fi
-    check_dock_stable home0 land "landscape"
-  else
-    skip "rotation to landscape keeps the order" "device stayed at rotation $(meta land rotation)"
-  fi
-  rotate_to 0
-  snapshot portrait
-  if same_order "$unlocked" portrait; then pass "rotation back to portrait keeps the order"
-  else fail "rotation back to portrait keeps the order"; fi
-  check_dock_stable home0 portrait "back in portrait"
+if [ "$SDK" -ge 29 ]; then
+  holders="$(adb_sh "cmd role get-role-holders $HOME_ROLE" || true)"
+  if printf '%s\n' "$holders" | grep -qx "$PKG"; then fail "not the HOME role holder" "holders: $holders"
+  else pass "not the HOME role holder (holder: ${holders:-<none>})"; fi
 else
-  for c in "set as default home" "HOME shows Glitch" "dock has 1..4 apps" "Back on home does nothing" \
-           "Home while on Glitch keeps the order" "returning Home after another app keeps the order" \
-           "screen off/on reshuffles the grid" "rotation keeps the order (home)" "dock unchanged"; do
-    if [ "$LAUNCHER_BUILD" = 1 ]; then skip "$c" "no cmd role on API $SDK (needs API 29+)"
-    else skip "$c" "not a launcher build"; fi
-  done
+  skip "not the HOME role holder" "no cmd role on API $SDK"
 fi
 
-# ---------------------------------------------------------------- app-mode checks
-# Glitch opened like a normal app. When it holds the home role, step away from it first so the
-# checks exercise the app path: give the role back to the previous holder for this section.
-info "App mode"
-if [ "$HOME_MODE" = 1 ] && [ -n "$PREV_HOME" ] && [ "$PREV_HOME" != "$PKG" ]; then
-  adb_sh "cmd role add-role-holder $HOME_ROLE $PREV_HOME" > /dev/null || true
-  # Without this, a failed hand-back would leave Glitch as home, where keeping the order on
-  # return is correct, and the reopen check below would fail for the wrong reason.
-  if [ "$(home_holder)" = "$PREV_HOME" ]; then pass "home role handed back to $PREV_HOME for app mode"
-  else fail "home role handed back to $PREV_HOME for app mode" "role holder is '$(home_holder)'"; fi
-fi
+# ---------------------------------------------------------------- app checks
+info "App"
 open_app_mode
 snapshot app0
-if [ -s "$WORK/app0.grid" ]; then pass "app mode: grid tiles parsed ($(wc -l < "$WORK/app0.grid") visible)"
-else fail "app mode: grid tiles parsed" "no tiles found"; fi
+if [ -s "$WORK/app0.grid" ]; then pass "grid tiles parsed ($(wc -l < "$WORK/app0.grid") visible)"
+else fail "grid tiles parsed" "no tiles found"; fi
+nd="$(wc -l < "$WORK/app0.dock")"
+if [ "$nd" -le 4 ]; then pass "dock has at most 4 apps ($nd)"
+else fail "dock has at most 4 apps" "found $nd (dock rule: $(meta app0 dockrule))"; fi
+if [ -n "$EXPECT_DOCK" ]; then
+  if [ "$(joined "$WORK/app0.dock")" = "$EXPECT_DOCK" ]; then pass "dock is: $EXPECT_DOCK"
+  else fail "dock is: $EXPECT_DOCK" "found: $(joined "$WORK/app0.dock")"; fi
+fi
+overlap="$(grep -Fxf "$WORK/app0.dock" "$WORK/app0.grid" || true)"
+if [ -z "$overlap" ]; then pass "dock apps are not in the grid"
+else fail "dock apps are not in the grid" "in both: $(printf '%s' "$overlap" | tr '\n' ',')"; fi
 
 rotate_to 1
 snapshot app_land
 if [ "$(meta app_land rotation)" = 1 ] || [ "$(meta app_land rotation)" = 3 ]; then
-  if same_order app0 app_land; then pass "app mode: rotation keeps the order"
-  else fail "app mode: rotation keeps the order" "portrait: $(joined "$WORK/app0.grid")"; fi
+  if same_order app0 app_land; then pass "rotation to landscape keeps the order"
+  else fail "rotation to landscape keeps the order" "portrait: $(joined "$WORK/app0.grid")"; fi
+  check_dock_stable app0 app_land "landscape"
 else
-  skip "app mode: rotation keeps the order" "device stayed at rotation $(meta app_land rotation)"
+  skip "rotation to landscape keeps the order" "device stayed at rotation $(meta app_land rotation)"
 fi
 rotate_to 0
 snapshot app_portrait
-if same_order app0 app_portrait; then pass "app mode: rotation back keeps the order"
-else fail "app mode: rotation back keeps the order"; fi
-if [ "$LAUNCHER_BUILD" = 1 ]; then check_dock_stable app0 app_portrait "app mode rotation"; fi
+if same_order app0 app_portrait; then pass "rotation back to portrait keeps the order"
+else fail "rotation back to portrait keeps the order"; fi
+check_dock_stable app0 app_portrait "back in portrait"
 
-expect_reshuffle "app mode: reopening gives a new order" app_portrait leave_and_reopen_app_mode reopen
+expect_reshuffle "leaving for another app and reopening gives a new order" app_portrait leave_and_reopen_app_mode reopen
+check_dock_stable app0 "$LAST_SNAP" "after reopening"
+
+adb_sh input keyevent KEYCODE_BACK > /dev/null
+sleep 1.5
+case "$(top_activity)" in
+  "$PKG"/*) fail "Back leaves Glitch" "Glitch is still in front" ;;
+  *) pass "Back leaves Glitch (now in front: $(top_activity))" ;;
+esac
 
 # ---------------------------------------------------------------- summary
 info "Summary"
@@ -563,14 +449,6 @@ printf '%d passed, %d failed, %d skipped\n' "$PASSES" "$FAILS" "$SKIPS"
 if [ "$FAILS" -gt 0 ]; then
   printf 'FAILED: %s\n' "$FAILED_NAMES"
   exit 1
-fi
-if [ "$LAUNCHER_BUILD" = 0 ]; then
-  printf 'RESULT: not a launcher build (exit 2). App-mode checks passed.\n'
-  exit 2
-fi
-if [ "$HOME_MODE" = 0 ]; then
-  printf 'RESULT: app-mode checks passed; home-mode checks skipped (API %s has no cmd role)\n' "$SDK"
-  exit 0
 fi
 printf 'RESULT: all checks passed\n'
 exit 0

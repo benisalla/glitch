@@ -3,16 +3,12 @@ package com.benisalla.glitch.menu
 import android.content.Context
 import androidx.core.content.edit
 
-/** Small persistent menu settings: the dock and whether the "make home" card was dismissed. */
+/** Small persistent menu settings: the dock. */
 interface MenuStore {
     /** Saved dock keys (`AppEntry.key`) in dock order, or null if the dock was never set up. */
     fun loadDock(): List<String>?
 
     fun saveDock(keys: List<String>)
-
-    fun isHomeCardDismissed(): Boolean
-
-    fun dismissHomeCard()
 }
 
 /** [MenuStore] in a private SharedPreferences file. It stays on the device (allowBackup is off). */
@@ -29,14 +25,9 @@ class SharedPreferencesMenuStore(context: Context) : MenuStore {
     // order, which a string set would not.
     override fun saveDock(keys: List<String>) = prefs.edit { putString(KEY_DOCK, keys.joinToString(SEPARATOR)) }
 
-    override fun isHomeCardDismissed(): Boolean = prefs.getBoolean(KEY_HOME_CARD_DISMISSED, false)
-
-    override fun dismissHomeCard() = prefs.edit { putBoolean(KEY_HOME_CARD_DISMISSED, true) }
-
     private companion object {
         const val FILE = "menu"
         const val KEY_DOCK = "dock"
-        const val KEY_HOME_CARD_DISMISSED = "home_card_dismissed"
         const val SEPARATOR = "\n"
     }
 }

@@ -47,10 +47,10 @@ sealed interface MenuMessage {
 }
 
 /**
- * Owns the menu order and the dock. When a new order is drawn is decided by [ReshufflePolicy]:
- * once per newly opened menu as a normal app, once per unlock (screen off) as the default home
- * screen. Otherwise the order is only reconciled (never reshuffled) when the installed apps
- * change. Because the ViewModel survives configuration changes, rotation keeps the same order.
+ * Owns the menu order and the dock for one "session": the time between the menu becoming visible
+ * and the user actually leaving it. The order is shuffled exactly once per session and otherwise
+ * only reconciled (never reshuffled) when the installed apps change. Because the ViewModel
+ * survives configuration changes, rotation keeps the same order.
  */
 class MenuViewModel(
     private val catalog: AppCatalog,
@@ -67,12 +67,6 @@ class MenuViewModel(
     /** One-shot user message (e.g. a failed launch); call [consumeMessage] once shown. */
     private val _message = MutableStateFlow<MenuMessage?>(null)
     val message: StateFlow<MenuMessage?> = _message.asStateFlow()
-
-    private val _isDefaultHome = MutableStateFlow(false)
-    val isDefaultHome: StateFlow<Boolean> = _isDefaultHome.asStateFlow()
-
-    private val _homeCardDismissed = MutableStateFlow(store.isHomeCardDismissed())
-    val homeCardDismissed: StateFlow<Boolean> = _homeCardDismissed.asStateFlow()
 
     /** Every launchable app in the current shuffled order, dock apps included; null before the first load. */
     private var order: List<AppEntry>? = null
@@ -91,22 +85,11 @@ class MenuViewModel(
     private var loadJob: Job? = null
     private var changesJob: Job? = null
 
-    /** Call from Activity.onStart (after [setDefaultHome]) and onResume with the current value. */
-    fun setDefaultHome(isDefaultHome: Boolean) {
-        _isDefaultHome.value = isDefaultHome
-    }
-
-    /** Call from Activity.onStart. Reloads the apps; shuffles when [ReshufflePolicy] says so. */
+    /** Call from Activity.onStart. Starts a new session (one shuffle) unless returning from a config change. */
     fun onMenuStarted() {
-        val newSession = !sessionActive
-        if (newSession) {
+        if (!sessionActive) {
             sessionActive = true
-            if (ReshufflePolicy.shuffleOnStart(order != null, newSession, _isDefaultHome.value)) {
-                needsShuffle = true
-                _state.value = MenuUiState.Loading
-            }
-            // Picks up apps installed or removed while stopped; reconciles without reshuffling.
-            refresh()
+            startNewOrder()
         }
         if (changesJob == null) {
             changesJob = viewModelScope.launch {
@@ -123,27 +106,12 @@ class MenuViewModel(
     }
 
     /**
-     * Call when Glitch is launched again while it was covered by another app but not yet stopped
-     * (see [ReshufflePolicy.shuffleOnReopenBeforeStop]). Call [setDefaultHome] first.
+     * Call when Glitch is launched again (from its icon or another app) while another app covered
+     * it but Android had not yet delivered onStop, which can lag on a busy device. That is a newly
+     * opened menu, so it starts a new session.
      */
     fun onMenuReopenedBeforeStop() {
-        if (!ReshufflePolicy.shuffleOnReopenBeforeStop(_isDefaultHome.value)) return
-        needsShuffle = true
-        _state.value = MenuUiState.Loading
-        refresh()
-    }
-
-    /** The screen turned off. As the home screen, draw the next order now, ready for the unlock. */
-    fun onScreenOff() {
-        if (!ReshufflePolicy.shuffleOnScreenOff(_isDefaultHome.value)) return
-        val current = order
-        if (current == null) {
-            needsShuffle = true
-        } else {
-            order = MenuOrder.shuffled(current, random)
-            shuffleId++
-            publish()
-        }
+        startNewOrder()
     }
 
     fun retry() {
@@ -178,11 +146,6 @@ class MenuViewModel(
         saveDock(Dock.withRemoved(visibleDockKeys(), entry.key))
     }
 
-    fun dismissHomeCard() {
-        store.dismissHomeCard()
-        _homeCardDismissed.value = true
-    }
-
     fun consumeMessage() {
         _message.value = null
     }
@@ -193,6 +156,12 @@ class MenuViewModel(
         return Dock.partition(current, dockKeys.orEmpty()).dock.map { it.key }
     }
 
+    private fun startNewOrder() {
+        needsShuffle = true
+        _state.value = MenuUiState.Loading
+        refresh()
+    }
+
     private fun saveDock(keys: List<String>) {
         dockKeys = keys
         dockPersisted = true
@@ -201,8 +170,8 @@ class MenuViewModel(
     }
 
     /**
-     * Reloads the catalog. Shuffles if a new order is due; otherwise reconciles against the
-     * current order. A newer refresh cancels an older one still in flight.
+     * Reloads the catalog. Shuffles if this session has no order yet; otherwise reconciles against
+     * the current order. A newer refresh cancels an older one still in flight.
      */
     private fun refresh() {
         loadJob?.cancel()

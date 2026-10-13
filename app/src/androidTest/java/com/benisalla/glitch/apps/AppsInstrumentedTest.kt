@@ -15,7 +15,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
-import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -78,23 +77,30 @@ class AppsInstrumentedTest {
     }
 
     @Test
-    fun manifestOffersMainActivityAsOptionalHome() {
-        val home = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME).setPackage(context.packageName)
+    fun glitchHasNoHomeActivity() {
+        // Glitch is a normal app, never a home-screen launcher. Without a HOME activity it cannot
+        // hold the HOME role, so updating from 1.1.0 hands the role back to another launcher.
+        val home = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
         @Suppress("DEPRECATION")
-        val handlers = context.packageManager.queryIntentActivities(home, PackageManager.MATCH_DEFAULT_ONLY)
-        assertEquals(listOf(MainActivity::class.java.name), handlers.map { it.activityInfo.name })
-        assertTrue(isHomeIntent(home))
-        assertTrue(!isHomeIntent(Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)))
+        val handlers = context.packageManager.queryIntentActivities(home, PackageManager.MATCH_ALL)
+        assertTrue(
+            "HOME handlers include Glitch: ${handlers.map { it.activityInfo.name }}",
+            handlers.none { it.activityInfo.packageName == context.packageName },
+        )
+        @Suppress("DEPRECATION")
+        val ownHome = context.packageManager.queryIntentActivities(
+            Intent(home).setPackage(context.packageName),
+            PackageManager.MATCH_ALL,
+        )
+        assertTrue(ownHome.isEmpty())
     }
 
     @Test
-    fun isDefaultHome_falseWhileAnotherLauncherHoldsTheRole() {
-        // Regression: resolving the HOME intent answered "Glitch" whenever the real default launcher
-        // was hidden by package visibility (e.g. the Pixel launcher has no LAUNCHER activity).
-        assumeTrue(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q)
-        val roleManager = context.getSystemService(android.app.role.RoleManager::class.java)
-        assumeTrue(!roleManager.isRoleHeld(android.app.role.RoleManager.ROLE_HOME))
-        assertTrue(!isDefaultHome(context))
+    fun launcherEntryIsMainActivity() {
+        val launcher = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER).setPackage(context.packageName)
+        @Suppress("DEPRECATION")
+        val handlers = context.packageManager.queryIntentActivities(launcher, 0)
+        assertEquals(listOf(MainActivity::class.java.name), handlers.map { it.activityInfo.name })
     }
 
     @Test
@@ -110,13 +116,10 @@ class AppsInstrumentedTest {
     }
 
     @Test
-    fun systemScreenIntentsResolve() = runBlocking {
-        val pm = context.packageManager
+    fun appInfoIntentResolves() = runBlocking {
         val entry = catalog.loadApps().first()
         @Suppress("DEPRECATION")
-        assertNotNull(pm.resolveActivity(appInfoIntent(entry), 0))
-        @Suppress("DEPRECATION")
-        assertNotNull(pm.resolveActivity(homeSettingsIntent(), 0))
+        assertNotNull(context.packageManager.resolveActivity(appInfoIntent(entry), 0))
     }
 
     @Test
@@ -128,9 +131,6 @@ class AppsInstrumentedTest {
         assertEquals(listOf("b/b.Main", "a/a.Main"), SharedPreferencesMenuStore(context).loadDock())
         store.saveDock(emptyList())
         assertEquals(emptyList<String>(), store.loadDock())
-        assertTrue(!store.isHomeCardDismissed())
-        store.dismissHomeCard()
-        assertTrue(SharedPreferencesMenuStore(context).isHomeCardDismissed())
         context.getSharedPreferences("menu", Context.MODE_PRIVATE).edit().clear().commit()
     }
 }

@@ -1,6 +1,5 @@
 package com.benisalla.glitch.apps
 
-import android.app.role.RoleManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
@@ -17,46 +16,7 @@ import com.benisalla.glitch.model.AppEntry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-private const val TAG = "HomeScreen"
-
-private fun homeIntent(): Intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
-
-/**
- * True when Glitch is the default home app.
- *
- * Android 10+: asks RoleManager whether we hold the HOME role. Resolving the HOME intent is not
- * reliable there: package visibility (Android 11+) hides a default launcher that has no LAUNCHER
- * activity, and the resolution then falls back to our own HOME filter, wrongly answering "Glitch".
- * Android 8-9 have no package visibility, so resolving the HOME intent is exact there.
- */
-fun isDefaultHome(context: Context): Boolean {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        val roleManager = context.getSystemService(RoleManager::class.java)
-        if (roleManager != null && roleManager.isRoleAvailable(RoleManager.ROLE_HOME)) {
-            return roleManager.isRoleHeld(RoleManager.ROLE_HOME)
-        }
-    }
-    return resolveDefault(context.packageManager, homeIntent())?.packageName == context.packageName
-}
-
-/** True if [intent] is a Home button press (as opposed to the LAUNCHER icon). */
-fun isHomeIntent(intent: Intent?): Boolean =
-    intent?.action == Intent.ACTION_MAIN && intent.hasCategory(Intent.CATEGORY_HOME)
-
-/**
- * The system dialog that asks to make Glitch the home app (Android 10+), or null when it is not
- * available; callers then open [homeSettingsIntent].
- */
-fun requestHomeRoleIntent(context: Context): Intent? {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return null
-    val roleManager = context.getSystemService(RoleManager::class.java) ?: return null
-    if (!roleManager.isRoleAvailable(RoleManager.ROLE_HOME)) return null
-    return roleManager.createRequestRoleIntent(RoleManager.ROLE_HOME)
-}
-
-/** System settings screen for choosing the default home app. */
-fun homeSettingsIntent(): Intent =
-    Intent(Settings.ACTION_HOME_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+private const val TAG = "DefaultApps"
 
 /** The system "App info" screen for [entry]'s package. */
 fun appInfoIntent(entry: AppEntry): Intent =

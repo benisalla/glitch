@@ -1,7 +1,6 @@
 package com.benisalla.glitch.menu
 
 import android.graphics.drawable.Drawable
-import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -27,25 +26,20 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -91,51 +85,24 @@ object MenuTags {
     const val GRID_TILE = "app_tile"
     const val DOCK_TILE = "dock_tile"
     const val DOCK = "dock"
-    const val HOME_CARD = "home_card"
-    const val HEADER_MENU = "header_menu"
 }
 
-/** One entry of the header's More options (⋮) menu. */
-class HeaderMenuItem(@StringRes val label: Int, val onClick: () -> Unit)
-
-/**
- * Entries of the header's More options (⋮) menu, top to bottom. It is always reachable (Ready,
- * Empty and Error states), so app-wide actions belong here; later features add their entry to
- * this list.
- */
-fun headerMenuItems(isDefaultHome: Boolean, actions: MenuActions): List<HeaderMenuItem> = listOf(
-    // The system decides the default home app; this is the visible way in and back out.
-    if (isDefaultHome) {
-        HeaderMenuItem(R.string.menu_change_home, actions.onChangeHome)
-    } else {
-        HeaderMenuItem(R.string.home_card_title, actions.onMakeHome)
-    },
-)
-
-/** What the long-press menu and the home card can do, besides opening an app. */
+/** What the long-press menu can do, besides opening an app. */
 class MenuActions(
     val onAddToDock: (AppEntry) -> Unit = {},
     val onRemoveFromDock: (AppEntry) -> Unit = {},
     val onAppInfo: (AppEntry) -> Unit = {},
-    val onMakeHome: () -> Unit = {},
-    val onChangeHome: () -> Unit = {},
-    val onDismissHomeCard: () -> Unit = {},
 )
 
 @Composable
 fun MenuScreen(
     viewModel: MenuViewModel,
     loadIcon: suspend (AppEntry) -> Drawable?,
-    scrollToTopSignal: Int,
     onAppInfo: (AppEntry) -> Unit,
-    onMakeHome: () -> Unit,
-    onChangeHome: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val message by viewModel.message.collectAsStateWithLifecycle()
-    val isDefaultHome by viewModel.isDefaultHome.collectAsStateWithLifecycle()
-    val homeCardDismissed by viewModel.homeCardDismissed.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
     val messageText = message?.let { messageText(it) }
@@ -145,14 +112,11 @@ fun MenuScreen(
         viewModel.consumeMessage()
     }
 
-    val actions = remember(viewModel, onAppInfo, onMakeHome, onChangeHome) {
+    val actions = remember(viewModel, onAppInfo) {
         MenuActions(
             onAddToDock = viewModel::addToDock,
             onRemoveFromDock = viewModel::removeFromDock,
             onAppInfo = onAppInfo,
-            onMakeHome = onMakeHome,
-            onChangeHome = onChangeHome,
-            onDismissHomeCard = viewModel::dismissHomeCard,
         )
     }
 
@@ -168,10 +132,7 @@ fun MenuScreen(
             onAppClick = viewModel::launch,
             onRetry = viewModel::retry,
             contentPadding = innerPadding,
-            isDefaultHome = isDefaultHome,
-            showHomeCard = !isDefaultHome && !homeCardDismissed,
             actions = actions,
-            scrollToTopSignal = scrollToTopSignal,
         )
     }
 }
@@ -185,8 +146,7 @@ private fun messageText(message: MenuMessage): String = when (message) {
 
 /**
  * Stateless menu body. Renders the grid and the dock in exactly the order given; it never reorders.
- * The grid scrolls back to the top on a new order ([MenuUiState.Ready.shuffleId]) and whenever
- * [scrollToTopSignal] changes.
+ * The grid scrolls back to the top on a new order ([MenuUiState.Ready.shuffleId]).
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -197,24 +157,20 @@ fun MenuContent(
     onRetry: () -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
-    isDefaultHome: Boolean = false,
-    showHomeCard: Boolean = false,
     actions: MenuActions = MenuActions(),
-    scrollToTopSignal: Int = 0,
 ) {
     val gridState = rememberLazyGridState()
-    ScrollToTopEffects(gridState, (state as? MenuUiState.Ready)?.shuffleId, scrollToTopSignal)
+    ScrollToTopOnNewOrder(gridState, (state as? MenuUiState.Ready)?.shuffleId)
 
     when (state) {
         MenuUiState.Loading -> CenteredBox(contentPadding, modifier) {
             val loading = stringResource(R.string.menu_loading)
             CircularProgressIndicator(Modifier.semantics { contentDescription = loading })
         }
-        // Empty and Error keep the header, so its menu (e.g. "Change home app") is never out of reach.
-        MenuUiState.Empty -> StatusLayout(contentPadding, modifier, isDefaultHome, actions) {
+        MenuUiState.Empty -> CenteredBox(contentPadding, modifier) {
             StatusText(stringResource(R.string.menu_empty))
         }
-        MenuUiState.Error -> StatusLayout(contentPadding, modifier, isDefaultHome, actions) {
+        MenuUiState.Error -> CenteredBox(contentPadding, modifier) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 StatusText(stringResource(R.string.menu_error))
                 Spacer(Modifier.height(16.dp))
@@ -241,19 +197,11 @@ fun MenuContent(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
             ) {
-                item(key = HeaderKey, span = { GridItemSpan(maxLineSpan) }) {
-                    MenuHeader(isDefaultHome = isDefaultHome, actions = actions, modifier = Modifier.padding(bottom = 4.dp))
-                }
-                if (showHomeCard) {
-                    item(key = HomeCardKey, span = { GridItemSpan(maxLineSpan) }) {
-                        HomeCard(onMakeHome = actions.onMakeHome, onDismiss = actions.onDismissHomeCard)
-                    }
-                }
+                item(key = HeaderKey, span = { GridItemSpan(maxLineSpan) }) { MenuTitle() }
                 items(state.apps, key = { it.key }) { entry ->
                     AppTile(
                         entry = entry,
                         inDock = false,
-                        isDefaultHome = isDefaultHome,
                         loadIcon = loadIcon,
                         onClick = { onAppClick(entry) },
                         actions = actions,
@@ -263,7 +211,6 @@ fun MenuContent(
             if (hasDock) {
                 DockRow(
                     dock = state.dock,
-                    isDefaultHome = isDefaultHome,
                     loadIcon = loadIcon,
                     onAppClick = onAppClick,
                     actions = actions,
@@ -275,7 +222,7 @@ fun MenuContent(
 }
 
 @Composable
-private fun ScrollToTopEffects(gridState: LazyGridState, shuffleId: Int?, scrollToTopSignal: Int) {
+private fun ScrollToTopOnNewOrder(gridState: LazyGridState, shuffleId: Int?) {
     // Saved across configuration changes, so rotation does not count as a new order.
     var seenShuffleId by rememberSaveable { mutableStateOf(shuffleId) }
     LaunchedEffect(shuffleId) {
@@ -284,102 +231,29 @@ private fun ScrollToTopEffects(gridState: LazyGridState, shuffleId: Int?, scroll
             gridState.scrollToItem(0)
         }
     }
-    var seenSignal by rememberSaveable { mutableIntStateOf(scrollToTopSignal) }
-    LaunchedEffect(scrollToTopSignal) {
-        if (scrollToTopSignal != seenSignal) {
-            seenSignal = scrollToTopSignal
-            gridState.animateScrollToItem(0)
-        }
-    }
 }
 
-/** Grid keys of the title row and home card; cannot collide with app keys, which always contain a '/'. */
+/** Grid key of the title row; cannot collide with app keys, which always contain a '/'. */
 private const val HeaderKey = "header"
-private const val HomeCardKey = "home_card"
-
-/** The "Glitch" title with the More options (⋮) menu at the end of the row. */
-@Composable
-private fun MenuHeader(isDefaultHome: Boolean, actions: MenuActions, modifier: Modifier = Modifier) {
-    Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Text(
-            text = stringResource(R.string.app_name),
-            modifier = Modifier
-                .weight(1f)
-                .padding(start = 8.dp, end = 8.dp)
-                .semantics { heading() },
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-        HeaderMenu(headerMenuItems(isDefaultHome, actions))
-    }
-}
 
 @Composable
-private fun HeaderMenu(items: List<HeaderMenuItem>) {
-    var open by remember { mutableStateOf(false) }
-    val moreOptions = stringResource(R.string.menu_more_options)
-    Box {
-        IconButton(
-            onClick = { open = true },
-            // Explicit 48 dp: the minimum touch target, whatever the IconButton default is.
-            modifier = Modifier
-                .size(48.dp)
-                .testTag(MenuTags.HEADER_MENU)
-                .semantics { contentDescription = moreOptions },
-        ) {
-            // A vertical ellipsis drawn in place, so no icon library is needed.
-            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                repeat(3) {
-                    Box(
-                        Modifier
-                            .size(4.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.onSurfaceVariant),
-                    )
-                }
-            }
-        }
-        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
-            items.forEach { item -> MenuItem(stringResource(item.label), { open = false }, item.onClick) }
-        }
-    }
-}
-
-@Composable
-private fun HomeCard(onMakeHome: () -> Unit, onDismiss: () -> Unit) {
-    OutlinedCard(
+private fun MenuTitle() {
+    Text(
+        text = stringResource(R.string.app_name),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 8.dp)
-            .testTag(MenuTags.HOME_CARD),
-    ) {
-        Column(Modifier.padding(start = 16.dp, end = 8.dp, top = 14.dp, bottom = 4.dp)) {
-            Text(
-                text = stringResource(R.string.home_card_title),
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-            Spacer(Modifier.height(4.dp))
-            Text(
-                text = stringResource(R.string.home_card_body),
-                modifier = Modifier.padding(end = 8.dp),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                TextButton(onClick = onDismiss) { Text(stringResource(R.string.home_card_dismiss)) }
-                TextButton(onClick = onMakeHome) { Text(stringResource(R.string.home_card_action)) }
-            }
-        }
-    }
+            .padding(start = 8.dp, end = 8.dp, top = 4.dp, bottom = 12.dp)
+            .semantics { heading() },
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+    )
 }
 
 @Composable
 private fun DockRow(
     dock: List<AppEntry>,
-    isDefaultHome: Boolean,
     loadIcon: suspend (AppEntry) -> Drawable?,
     onAppClick: (AppEntry) -> Unit,
     actions: MenuActions,
@@ -401,7 +275,6 @@ private fun DockRow(
                     AppTile(
                         entry = entry,
                         inDock = true,
-                        isDefaultHome = isDefaultHome,
                         loadIcon = loadIcon,
                         onClick = { onAppClick(entry) },
                         actions = actions,
@@ -417,7 +290,6 @@ private fun DockRow(
 private fun AppTile(
     entry: AppEntry,
     inDock: Boolean,
-    isDefaultHome: Boolean,
     loadIcon: suspend (AppEntry) -> Drawable?,
     onClick: () -> Unit,
     actions: MenuActions,
@@ -489,12 +361,6 @@ private fun AppTile(
                 MenuItem(stringResource(R.string.menu_add_to_dock), close) { actions.onAddToDock(entry) }
             }
             MenuItem(stringResource(R.string.menu_app_info), close) { actions.onAppInfo(entry) }
-            // A quiet way in, and back out: the system decides the default home app.
-            if (isDefaultHome) {
-                MenuItem(stringResource(R.string.menu_change_home), close, actions.onChangeHome)
-            } else {
-                MenuItem(stringResource(R.string.home_card_title), close, actions.onMakeHome)
-            }
         }
     }
 }
@@ -527,35 +393,4 @@ private fun CenteredBox(
             .padding(24.dp),
         contentAlignment = Alignment.Center,
     ) { content() }
-}
-
-/** Header at the top, a status message centered below it. */
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-private fun StatusLayout(
-    contentPadding: PaddingValues,
-    modifier: Modifier,
-    isDefaultHome: Boolean,
-    actions: MenuActions,
-    content: @Composable () -> Unit,
-) {
-    Column(
-        modifier
-            .fillMaxSize()
-            .padding(contentPadding)
-            .semantics { testTagsAsResourceId = true },
-    ) {
-        MenuHeader(
-            isDefaultHome = isDefaultHome,
-            actions = actions,
-            modifier = Modifier.padding(start = GridPadding, end = GridPadding, top = GridPadding),
-        )
-        Box(
-            Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .padding(24.dp),
-            contentAlignment = Alignment.Center,
-        ) { content() }
-    }
 }
