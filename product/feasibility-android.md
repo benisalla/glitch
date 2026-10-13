@@ -218,7 +218,7 @@ Recommended: a heads-up notification for phase A. In phase B, an accessibility o
    - the Play declaration and video;
    - a privacy policy update.
 
-   Strongly consider shipping v3 as a **separate companion app or product flavor** ("Glitch Guard") so the core Glitch listing keeps "permissions: none" and its fast, clean review. Opening the companion stays a deliberate user choice.
+   Strongly consider shipping v3 as a **separate companion app or product flavor** ("Glitch Guard") so the core Glitch listing keeps "permissions: none" and its fast, clean review. Opening the companion stays a deliberate user choice. *(Superseded by AGENTS.md: the Accessibility feature ships only as a companion app in its own repository.)*
 
 ---
 
@@ -240,7 +240,7 @@ Recommended: a heads-up notification for phase A. In phase B, an accessibility o
 | 9 | Notification batching | Notification access (T2) | Medium-High (sensitive data) | L | **Avoid**; link to DND/Modes |
 | 10 | Local storage, export, delete | none (T0) | none | S-M | **Do now** |
 | 11a | Reels detector, app-level | Usage access + FGS or WorkManager (T2) + T1 | Medium | M-L | v2, opt-in |
-| 11b | Reels detector, in-app | Accessibility (T3) (+ overlay optional) | High but precedented | L | v3, ideally separate app/flavor |
+| 11b | Reels detector, in-app | Accessibility (T3) (+ overlay optional) | High but precedented | L | v3, separate companion app (AGENTS.md) |
 
 **Features that keep "no permissions" fully intact:** 1, 2a, 2b-lite (pinned shortcuts), 3, 8, 10, and the widget/tile part of 6.
 
@@ -285,7 +285,7 @@ Rules this keeps:
   - first-of-day logic with fixed dates;
   - export/clear round-trip on the fake.
 - **Dependencies to justify:** `androidx.datastore:datastore-preferences` (needed for 1, 3, 8, 10). Later, `androidx.glance:glance-appwidget` (6) and `androidx.work:work-runtime` (5a/11a).
-- **Future permissioned tiers** (4, 5a, 11) would go into a new `focus/` package. They should touch the menu only through `LocalStore` and `AppEntry.key`, so the T0 core never depends on them. If 11b ships, put it in a product flavor or a companion app, so the default build's merged manifest still has zero `<uses-permission>`. CI can assert that with a merged-manifest check.
+- **Future permissioned tiers** (4, 5a, 11) would go into a new `focus/` package. They should touch the menu only through `LocalStore` and `AppEntry.key`, so the T0 core never depends on them. If 11b ships, put it in a product flavor or a companion app, so the default build's merged manifest still has zero `<uses-permission>`. CI can assert that with a merged-manifest check. *(Superseded by AGENTS.md: the Accessibility feature ships only as a companion app in its own repository.)*
 
 ---
 

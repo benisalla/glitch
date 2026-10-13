@@ -361,7 +361,7 @@ When you've been swiping through short-form video (Instagram Reels, YouTube Shor
 ### How today's Glitch leads here
 
 ```
- v1.0 SHUFFLE          v1.1 INTENTION          v1.2 TIME CUES          v2.0 REELS GLITCH
+ v1.0 SHUFFLE          v1.1 INTENTION          v1.2 TIME CUES          v2.0 SCROLL GLITCH
  ───────────────       ────────────────        ───────────────         ─────────────────
  New order each   →    Your own words     →    A kind cue after   →    Your best words,
  open: look, then      before a noisy          you leave Glitch:        at the moment the
@@ -456,7 +456,7 @@ The feed freezes behind a navy overlay, and a short "glitch" animation runs (til
 | False alarms (P7: detection is fragile) | Only fires after a sustained signal; if detection fails, it fails silent (no glitch) rather than loud. Per-app toggles so a broken app can be switched off. |
 | Feels like surveillance | Only the selected apps are checked; no screen text is read or stored; no network permission in the app at all; a plain "what Glitch sees" page. |
 | Arms race with bypass | We don't fight it. Disabling is one tap and easy to find. The bet is that kind, self-written interruptions are worth keeping, not hard to remove. |
-| Glitch's "no permissions" identity | Ship the Scroll Glitch as a **separate opt-in add-on** (e.g. a companion app "Glitch Guard", or a separate build), so the core Glitch keeps its "Permissions: none" badge. Owner and engineer decide; this conflicts with "no extra modules" and needs an explicit exception. |
+| Glitch's "no permissions" identity | Ship the Scroll Glitch as a **separate opt-in add-on** (e.g. a companion app "Glitch Guard", or a separate build), so the core Glitch keeps its "Permissions: none" badge. Owner and engineer decide; this conflicts with "no extra modules" and needs an explicit exception. | *(Superseded by AGENTS.md: the Accessibility feature ships only as a companion app in its own repository.)*
 
 ### What it needs from the phone (pending feasibility check)
 
@@ -481,7 +481,7 @@ Glitch has no analytics and won't add them. To learn whether this works we rely 
 1. Approve dropping "prompts" and "timers" from the non-goals list for the v1.1 intention moment and evening set?
 2. Is a local, daily-reset counter of "Not now" taps acceptable (Concept 8), or is it "usage tracking"?
 3. v1.2: accept one optional runtime permission (`POST_NOTIFICATIONS`) and update the "Permissions: none" badge to "No permissions required"?
-4. Scroll Glitch: separate companion app, separate build flavor, or inside Glitch? (It conflicts with "no extra modules" and "no accessibility".)
+4. Scroll Glitch: separate companion app, separate build flavor, or inside Glitch? (It conflicts with "no extra modules" and "no accessibility".) **Decided:** separate companion app in its own repository (AGENTS.md).
 5. New dependency for storage (DataStore) or plain `SharedPreferences`? The engineer should advise.
 
 ---
