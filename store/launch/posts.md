@@ -53,7 +53,7 @@ Sources: [r/androidapps mod post, 27 May 2026 (mirror)](https://rl.klein.ruhr/r/
 > - Source: https://github.com/benisalla/glitch
 > - APK: https://github.com/benisalla/glitch/releases/latest
 > - Obtainium: add `https://github.com/benisalla/glitch`
-> - F-Droid: submission in progress
+> - F-Droid: planned
 >
 > It's v1.0, so it's deliberately tiny. I'd love feedback on the idea and the code, and bug reports. Issues are open on GitHub.
 
@@ -104,7 +104,7 @@ Rules (from the Show HN guidelines): it must be something people can try, with n
 **URL:** `https://github.com/benisalla/glitch` (the repo, so people see the code first)
 
 **First comment (post right away):**
-> Hi HN, I'm Ismail. Glitch is a small Android app that shows your installed apps in a random order, reshuffled each time you open it. The idea: most of us open apps by position, and the thumb taps before we've decided. When the icons are never in the same place, you read the names and choose.
+> Hi HN, I'm Ismail. Glitch is a small Android app that shows your installed apps in a random order, reshuffled each time you open it. The idea: most of us open apps by position, and the thumb taps before we've decided. When the icons are rarely in the same place, you read the names and choose.
 >
 > Some details that might interest people here:
 >

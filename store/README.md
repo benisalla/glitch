@@ -45,19 +45,14 @@ Steps marked **(owner)** need your Google account, money, identity or private ke
 - [ ] Complete identity verification (government ID) and verify your contact email and phone number.
 - [ ] Verify access to a physical Android device when Play Console asks (done through the Play Console mobile app).
 
-### 2. Create an upload key (owner, once)
-This is the same release key the GitHub release pipeline uses (see `RELEASING.md`). Use it as the Play app signing key too (step 4), so people who installed Glitch from GitHub can also receive updates from Play.
-```
-keytool -genkeypair -v \
-  -keystore ~/keys/glitch-upload.jks \
-  -alias upload -keyalg RSA -keysize 2048 -validity 10000
-```
+### 2. The release key (owner, once)
+Use the **one** release key you created in [`RELEASING.md`](../RELEASING.md) §1 (`~/keys/glitch-release.jks`, alias `glitch`). Do not create a second key. The GitHub release pipeline signs with it, and it is also the Play app signing key (step 4), so people who installed Glitch from GitHub can receive updates from Play.
 - [ ] Store the `.jks` file **outside the repo** and back it up (password manager or encrypted drive). Never commit it.
 - [ ] Create `keystore.properties` in the repo root (it must stay untracked; it is a secret):
   ```
-  storeFile=/home/<you>/keys/glitch-upload.jks
+  storeFile=/home/<you>/keys/glitch-release.jks
   storePassword=...
-  keyAlias=upload
+  keyAlias=glitch
   keyPassword=...
   ```
 

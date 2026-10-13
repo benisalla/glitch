@@ -60,4 +60,10 @@ If the tag does not match `versionName`, the workflow stops before building. To 
 
 The GitHub APK is signed with your key. If Glitch later goes to Google Play, the Play version must be signed with **the same key**, or people who installed from GitHub cannot update from Play (Android sees a different signature and refuses the update).
 
-When you create the app in Play Console and set up Play App Signing, do **not** accept a Google-generated app signing key. Choose to use your own key and upload this release key, following Play Console's instructions (it gives you the PEPK tool to export the key, encrypted). Then create a separate upload key for Play if you want one. Note that `store/README.md` currently says to accept the Google-managed key: follow this section instead if GitHub releases already exist.
+When you create the app in Play Console and set up Play App Signing, do **not** accept a Google-generated app signing key. Choose to use your own key and upload this release key, following Play Console's instructions (it gives you the PEPK tool to export the key, encrypted). Then create a separate upload key for Play if you want one.
+
+## Safety rules built into the pipeline
+
+- Only code on `main` is signed: a tag must point at a commit on `main`, and a dry run must be started from `main`. Merge first, then tag the merge commit.
+- Pre-releases (`v1.2.0-beta.1`) never become "latest". A patch to an older line (e.g. `v1.0.2` after `v1.1.0`) is published without taking over the always-latest `glitch.apk` link.
+- Before adding any collaborator with write access, also: (1) move the four secrets into a GitHub Environment named `release` limited to `v*` tags and `main`, with yourself as required reviewer, and add `environment: release` to the `build` job; (2) add a tag ruleset so only you can create `v*` tags.
