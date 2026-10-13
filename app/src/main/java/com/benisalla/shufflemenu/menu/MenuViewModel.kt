@@ -20,8 +20,20 @@ import kotlin.random.Random
 sealed interface MenuUiState {
     data object Loading : MenuUiState
     data object Empty : MenuUiState
-    data class Error(val message: String) : MenuUiState
+    /** The catalog could not be read. The UI shows a plain message and a retry button. */
+    data object Error : MenuUiState
     data class Ready(val apps: List<AppEntry>) : MenuUiState
+}
+
+/** One-shot message for the user. The UI turns it into localized text. */
+sealed interface MenuMessage {
+    val label: String
+
+    /** The app was uninstalled or disabled since the menu was loaded. */
+    data class Unavailable(override val label: String) : MenuMessage
+
+    /** The app exists but could not be started. */
+    data class LaunchFailed(override val label: String) : MenuMessage
 }
 
 /**
@@ -40,8 +52,8 @@ class MenuViewModel(
     val state: StateFlow<MenuUiState> = _state.asStateFlow()
 
     /** One-shot user message (e.g. a failed launch); call [consumeMessage] once shown. */
-    private val _message = MutableStateFlow<String?>(null)
-    val message: StateFlow<String?> = _message.asStateFlow()
+    private val _message = MutableStateFlow<MenuMessage?>(null)
+    val message: StateFlow<MenuMessage?> = _message.asStateFlow()
 
     private var sessionActive = false
     private var needsShuffle = false
@@ -79,11 +91,11 @@ class MenuViewModel(
         when (launcher.launch(entry)) {
             LaunchResult.Launched -> Unit
             LaunchResult.Unavailable -> {
-                _message.value = "${entry.label} is no longer available"
+                _message.value = MenuMessage.Unavailable(entry.label)
                 refresh()
             }
             // The technical reason is not useful to the user; the launcher may log it.
-            is LaunchResult.Failed -> _message.value = "Couldn't open ${entry.label}"
+            is LaunchResult.Failed -> _message.value = MenuMessage.LaunchFailed(entry.label)
         }
     }
 
@@ -102,10 +114,10 @@ class MenuViewModel(
                 catalog.loadApps()
             } catch (e: CancellationException) {
                 throw e
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 val current = _state.value
                 if (needsShuffle || current !is MenuUiState.Ready) {
-                    _state.value = MenuUiState.Error(e.message ?: "Couldn't load apps")
+                    _state.value = MenuUiState.Error
                 }
                 return@launch
             }
