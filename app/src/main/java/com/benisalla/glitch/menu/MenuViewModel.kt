@@ -59,6 +59,8 @@ class MenuViewModel(
     private val random: Random = Random.Default,
     /** The system default apps for the first-run dock, one candidate list per dock slot. */
     private val defaultDockApps: suspend () -> List<List<DefaultApp>> = { emptyList() },
+    /** Called once per newly opened menu (not on rotation); the widget reshuffles too. */
+    private val onNewSession: () -> Unit = {},
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<MenuUiState>(MenuUiState.Loading)
@@ -157,6 +159,7 @@ class MenuViewModel(
     }
 
     private fun startNewOrder() {
+        onNewSession()
         needsShuffle = true
         _state.value = MenuUiState.Loading
         refresh()
@@ -234,9 +237,10 @@ class MenuViewModel(
             launcher: AppLauncher,
             store: MenuStore,
             defaultDockApps: suspend () -> List<List<DefaultApp>>,
+            onNewSession: () -> Unit = {},
         ): ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                MenuViewModel(catalog, launcher, store, defaultDockApps = defaultDockApps)
+                MenuViewModel(catalog, launcher, store, defaultDockApps = defaultDockApps, onNewSession = onNewSession)
             }
         }
     }

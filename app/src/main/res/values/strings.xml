@@ -12,4 +12,6 @@
     <string name="menu_add_to_dock">Add to dock</string>
     <string name="menu_remove_from_dock">Remove from dock</string>
     <string name="menu_app_info">App info</string>
+    <string name="widget_name">Shuffled apps</string>
+    <string name="widget_description">Your apps in a new order after each tap. Tap an app to open it.</string>
 </resources>

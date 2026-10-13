@@ -3,7 +3,8 @@
 ## Product scope
 - One purpose: show the installed, launchable apps (icon + label) in a random order, so the user has to look instead of tapping by position. Tapping an app opens it normally.
 - Platform boundary: this is a standalone app that the user opens from their existing home screen. It does not modify Samsung One UI's launcher or app drawer, is not a home-screen replacement, and must never declare a HOME intent filter or request the HOME role.
-- History: v1.1.0 shipped an optional home-screen mode. After trying it, the owner decided on 2026-10-13 to remove it (v1.1.1): it felt like being trapped in a bare menu. Do not bring home-screen mode back without the owner's explicit approval. Research into shuffling the phone's own app drawer is ongoing (`product/samsung-drawer-research.md`, coming).
+- History: v1.1.0 shipped an optional home-screen mode. After trying it, the owner decided on 2026-10-13 to remove it (v1.1.1): it felt like being trapped in a bare menu. Do not bring home-screen mode back without the owner's explicit approval. No app can reorder Samsung One UI Home's own drawer (`product/samsung-drawer-research.md`).
+- Shuffled apps widget (approved 2026-10-13, v1.2.0): an AppWidget that the user adds to their existing home screen (e.g. One UI Home), showing the launchable apps in a shuffled order. An AppWidget is allowed; it does not make Glitch a home screen, and Glitch still never declares HOME or requests the HOME role. The widget reshuffles after each launch from it, when the Glitch app starts a new session, and on the system's periodic widget update. No foreground service, exact alarm, WorkManager or permission for it.
 - Dock (approved, v1.1.0): a fixed dock of up to 4 apps, long-press actions "Add to dock" / "Remove from dock" and "App info".
 - Vision: Glitch grows into gentle, user-controlled cues for people with ADHD and attention that wanders quickly. See `VISION.md`, `ROADMAP.md` and the research in `product/`.
 - Planned, not yet approved: intention prompts, time cues, usage awareness (see `ROADMAP.md`). The fixed dock replaces the earlier "anchor apps" idea and shipped in v1.1.0. Build a roadmap item only after the owner explicitly approves that item, and update this file in the same change.
@@ -18,6 +19,7 @@ Single Gradle module `:app`, Kotlin + Jetpack Compose, package `com.benisalla.gl
 - `model/`: shared contracts: `AppEntry` (key = `package/activity`), `AppCatalog`, `AppLauncher`, `LaunchResult`.
 - `apps/`: `PackageManagerAppCatalog` (discovers launcher activities, loads icons, emits package changes) and `IntentAppLauncher`.
 - `menu/`: shuffle logic, session state (`MenuViewModel`), and Compose UI (`MenuScreen`, `GlitchTheme`).
+- `widget/`: the Shuffled apps widget, built with classic RemoteViews (no Glance: Glance pulls in WorkManager, whose manifest adds permissions, and its Compose-like API buys little for one grid). `WidgetOrder`/`WidgetOrderState` (pure order rules: seeded shuffle on request, otherwise `MenuOrder.reconcile`), `SharedPreferencesWidgetOrderStore`, `ShuffleWidgetProvider` (AppWidgetProvider), `ShuffleWidgetService` (RemoteViewsService feeding the GridView lazily, so icons never overflow one binder transaction) and `LaunchTrampolineActivity` (no-UI, not exported: opens the tapped app, requests a reshuffle, finishes). The dock does not apply to the widget.
 - `MainActivity.kt`: wiring only. It calls `onMenuStarted()` from `onStart` and `onMenuStopped(isChangingConfigurations)` from `onStop`.
 - The dock (up to 4 app keys) is stored only on the device.
 
@@ -26,6 +28,11 @@ Session semantics (keep these):
 - Order stays stable while the menu is visible: no reshuffle on recomposition, rotation/configuration change, or incidental refresh.
 - **Dock:** up to 4 apps, chosen by the user (defaults: phone, messages, camera, browser, where installed). Dock apps keep their fixed spots and are excluded from the shuffle and from the shuffled grid. Adding or removing a dock app does not reshuffle the grid. A dock app that is uninstalled is dropped from the dock.
 - When apps are installed or removed while the menu is open: keep the current order of surviving entries, drop removed ones, add new ones without reshuffling the rest.
+
+Widget semantics (keep these):
+- A reshuffle is a request (a counter in the widget store); the next reload consumes it. A request that arrives during a reload stays pending. Without a request, reloads only reconcile (same rule as the menu).
+- Triggers: a launch from the widget (via the trampoline), a new menu session (`MenuViewModel`'s `onNewSession`), and `onUpdate` (widget added, periodic `updatePeriodMillis` of 30 min). It cannot reshuffle on unlock.
+- `PACKAGE_FULLY_REMOVED` reloads without reshuffling; installs show up on the next reload (manifest receivers no longer get `PACKAGE_ADDED`).
 
 No DI frameworks, no extra modules, no needless abstractions.
 
@@ -42,6 +49,7 @@ Keep runs targeted (e.g. `:app:testDebugUnitTest --tests '...'`). Fix failures; 
 ## Ownership areas
 - Build and platform files (`*.gradle.kts`, `gradle/**`, `gradle.properties`, `gradlew*`, `AndroidManifest.xml`, `res/**`), `model/**`, `MainActivity.kt`, `.gitignore`: changes to contracts or dependencies need an explicit reason.
 - `apps/**` and its tests: app discovery and launching.
+- `widget/**` and its tests: the home-screen widget.
 - `menu/**` and its tests: shuffle, session, UI.
 - `.github/**`: CI only.
 - `AGENTS.md`, `CLAUDE.md`, `README.md`, `CONTRIBUTING.md`, `.claude/settings.json`: docs and agent config.
@@ -51,7 +59,7 @@ Changing a shared contract in `model/` means updating every implementation and t
 - Unit tests live in `app/src/test/`, instrumented tests in `app/src/androidTest/`.
 - No flaky shuffle tests: inject `Random` and use a fixed seed. Never assert that an order "looks random" or differs from the previous one by chance alone.
 - Assert invariants instead: the result is a permutation of the input (same keys, no duplicates, nothing lost); order is unchanged across config changes and refreshes; dock apps never appear in the shuffled grid and the dock never exceeds 4; reconciliation keeps survivor order and adds/drops only the changed entries.
-- New behavior in `menu/` or `apps/` comes with tests.
+- New behavior in `menu/`, `apps/` or `widget/` comes with tests.
 
 ## Privacy requirements
 - No permissions in the manifest. In particular no `INTERNET`, `QUERY_ALL_PACKAGES`, accessibility, overlay, usage access, or anything needing root.

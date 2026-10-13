@@ -1,0 +1,8 @@
+<resources>
+    <color name="widget_background">@android:color/system_neutral1_900</color>
+    <color name="widget_label">@android:color/system_neutral1_50</color>
+    <color name="widget_header">@android:color/system_neutral2_200</color>
+    <color name="widget_ripple">#33FFFFFF</color>
+    <color name="widget_preview_icon">@android:color/system_accent1_600</color>
+    <color name="widget_preview_label">@android:color/system_neutral2_600</color>
+</resources>

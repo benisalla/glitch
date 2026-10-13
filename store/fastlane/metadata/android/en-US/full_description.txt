@@ -9,6 +9,12 @@ How it works
 
 Come back to Glitch and the order changes again.
 
+A widget for your home screen
+• Add the Shuffled apps widget to your usual home screen: long-press the home screen, tap Widgets, then Glitch.
+• It shows your apps in a shuffled order. Tap one and it opens normally.
+• The order changes after each tap from the widget, each time you open Glitch, and from time to time on its own.
+• Resize it to show more apps, or scroll inside it.
+
 Why glitch?
 Most of us open apps by position. The thumb knows where an icon lives and taps before we have really decided. That is handy, and it is also a habit that runs on autopilot.
 
@@ -31,7 +37,7 @@ Private by design
 • It only sees apps that show up in a launcher, not every package on your device.
 
 What it doesn't do
-• It never replaces your home screen or touches your phone's launcher or app drawer. Both keep working exactly as before.
+• It never replaces your home screen or touches your phone's launcher or app drawer. Both keep working exactly as before. The widget sits on your home screen like any other widget.
 • No reminders, blockers, timers or usage statistics.
 • It does not lock, hide or limit any app. It only changes the order of the list.
 
@@ -40,7 +46,7 @@ Does it replace my home screen?
 No. Glitch is a normal app you open when you want it. Your home screen and app drawer stay the same.
 
 How do I keep it handy?
-Long-press Glitch in your app drawer and add it to your home screen.
+Long-press Glitch in your app drawer and add it to your home screen. Or add the Shuffled apps widget.
 
 Does the order change while I'm looking at it?
 No. You get one new order each time you open Glitch. It stays the same until you leave and come back.

@@ -19,10 +19,10 @@ The long-term goal is the **Scroll Glitch**. When you've slipped into endless sh
 We are getting there in steps, so trust comes before permissions:
 
 ```
-shuffle  →  dock  →  intention moment  →  gentle time cues  →  Scroll Glitch
- (v1.0)    (v1.1, now)     (v1.2)            (v1.3–v2.0)        (future add-on)
+shuffle  →  dock  →  widget  →  intention moment  →  gentle time cues  →  Scroll Glitch
+ (v1.0)    (v1.1)  (v1.2, now)     (v1.3)             (v1.4–v2.0)        (future add-on)
 ```
 
-A home-screen mode was tried in 1.1.0 and removed in 1.1.1. Research into shuffling the phone's own app drawer is ongoing (`product/samsung-drawer-research.md`, coming).
+A home-screen mode was tried in 1.1.0 and removed in 1.1.1. Research showed no app can reorder the phone's own app drawer without replacing the launcher ([`product/samsung-drawer-research.md`](product/samsung-drawer-research.md)), so v1.2 adds a Shuffled apps widget for your usual home screen.
 
 See [ROADMAP.md](ROADMAP.md) for the plan, and [`product/`](product/) for the research behind it.

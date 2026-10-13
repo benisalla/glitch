@@ -17,6 +17,7 @@ import com.benisalla.glitch.menu.GlitchTheme
 import com.benisalla.glitch.menu.MenuScreen
 import com.benisalla.glitch.menu.MenuViewModel
 import com.benisalla.glitch.menu.SharedPreferencesMenuStore
+import com.benisalla.glitch.widget.ShuffleWidget
 
 /**
  * Glitch's shuffled app menu: a normal app opened from the user's own home screen. It is not a
@@ -32,6 +33,7 @@ class MainActivity : ComponentActivity() {
             launcher = IntentAppLauncher(applicationContext),
             store = SharedPreferencesMenuStore(applicationContext),
             defaultDockApps = { resolveDefaultDockApps(applicationContext) },
+            onNewSession = { ShuffleWidget.requestReshuffle(applicationContext) },
         )
     }
 
