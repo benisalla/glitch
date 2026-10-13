@@ -9,21 +9,23 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -41,9 +43,11 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -51,9 +55,16 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.benisalla.shufflemenu.R
 import com.benisalla.shufflemenu.model.AppEntry
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
-private val IconSize = 48.dp
+private val IconSize = 52.dp
+private val IconShape = RoundedCornerShape(14.dp)
+private val TileShape = RoundedCornerShape(16.dp)
+private val MinTileWidth = 92.dp
+private val GridPadding = 12.dp
 
 @Composable
 fun MenuScreen(
@@ -65,14 +76,17 @@ fun MenuScreen(
     val message by viewModel.message.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    val messageText = message?.let { messageText(it) }
     LaunchedEffect(message) {
-        val text = message ?: return@LaunchedEffect
+        val text = messageText ?: return@LaunchedEffect
         snackbarHostState.showSnackbar(text)
         viewModel.consumeMessage()
     }
 
     Scaffold(
         modifier = modifier,
+        // Edge-to-edge: keep content clear of status/navigation bars and display cutouts.
+        contentWindowInsets = WindowInsets.safeDrawing,
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { innerPadding ->
         MenuContent(
@@ -83,6 +97,12 @@ fun MenuScreen(
             contentPadding = innerPadding,
         )
     }
+}
+
+@Composable
+private fun messageText(message: MenuMessage): String = when (message) {
+    is MenuMessage.Unavailable -> stringResource(R.string.menu_app_unavailable, message.label)
+    is MenuMessage.LaunchFailed -> stringResource(R.string.menu_app_launch_failed, message.label)
 }
 
 /** Stateless menu body. Renders apps in exactly the order given; it never reorders. */
@@ -97,74 +117,109 @@ fun MenuContent(
 ) {
     when (state) {
         MenuUiState.Loading -> CenteredBox(contentPadding, modifier) {
-            CircularProgressIndicator()
+            val loading = stringResource(R.string.menu_loading)
+            CircularProgressIndicator(Modifier.semantics { contentDescription = loading })
         }
         MenuUiState.Empty -> CenteredBox(contentPadding, modifier) {
-            Text("No apps found", style = MaterialTheme.typography.bodyLarge)
+            StatusText(stringResource(R.string.menu_empty))
         }
-        is MenuUiState.Error -> CenteredBox(contentPadding, modifier) {
+        MenuUiState.Error -> CenteredBox(contentPadding, modifier) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(state.message, textAlign = TextAlign.Center)
+                StatusText(stringResource(R.string.menu_error))
                 Spacer(Modifier.height(16.dp))
-                Button(onClick = onRetry) { Text("Retry") }
+                FilledTonalButton(onClick = onRetry) { Text(stringResource(R.string.menu_retry)) }
             }
         }
         is MenuUiState.Ready -> LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 88.dp),
+            columns = GridCells.Adaptive(minSize = MinTileWidth),
             modifier = modifier.fillMaxSize(),
-            contentPadding = contentPadding.plusAll(8.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
+            contentPadding = contentPadding.plusAll(GridPadding),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
+            item(key = HeaderKey, span = { GridItemSpan(maxLineSpan) }) { MenuTitle() }
             items(state.apps, key = { it.key }) { entry ->
-                AppCell(entry = entry, loadIcon = loadIcon, onClick = { onAppClick(entry) })
+                AppTile(entry = entry, loadIcon = loadIcon, onClick = { onAppClick(entry) })
             }
         }
     }
 }
 
+/** Grid key of the title row; cannot collide with app keys, which always contain a '/'. */
+private const val HeaderKey = "header"
+
 @Composable
-private fun AppCell(
+private fun MenuTitle() {
+    Text(
+        text = stringResource(R.string.app_name),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 8.dp, end = 8.dp, top = 4.dp, bottom = 12.dp)
+            .semantics { heading() },
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+    )
+}
+
+@Composable
+private fun AppTile(
     entry: AppEntry,
     loadIcon: suspend (AppEntry) -> Drawable?,
     onClick: () -> Unit,
 ) {
     val iconPx = with(LocalDensity.current) { IconSize.roundToPx() }
-    val icon by produceState<ImageBitmap?>(initialValue = null, entry.key) {
-        value = loadIcon(entry)?.toBitmap(iconPx, iconPx)?.asImageBitmap()
+    val icon by produceState<ImageBitmap?>(initialValue = null, entry.key, iconPx) {
+        val drawable = loadIcon(entry) ?: return@produceState
+        // Rasterize off the main thread so scrolling a long grid stays smooth.
+        value = withContext(Dispatchers.Default) { drawable.toBitmap(iconPx, iconPx).asImageBitmap() }
     }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .sizeIn(minHeight = 48.dp)
-            .clip(RoundedCornerShape(16.dp))
+            .clip(TileShape)
             .clickable(role = Role.Button, onClick = onClick)
-            // The full label is announced even when the visible one is ellipsized.
+            // One node for TalkBack, announced with the full label even when the visible one is cut.
             .semantics(mergeDescendants = true) { contentDescription = entry.label }
-            .padding(horizontal = 4.dp, vertical = 8.dp),
+            .padding(horizontal = 4.dp, vertical = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         val bitmap = icon
         if (bitmap != null) {
             Image(bitmap = bitmap, contentDescription = null, modifier = Modifier.size(IconSize))
         } else {
+            // Same-size placeholder so tiles do not jump when icons arrive.
             Box(
                 Modifier
                     .size(IconSize)
-                    .clip(CircleShape)
+                    .clip(IconShape)
                     .background(MaterialTheme.colorScheme.surfaceVariant),
             )
         }
-        Spacer(Modifier.height(6.dp))
+        Spacer(Modifier.height(8.dp))
         Text(
             text = entry.label,
             modifier = Modifier.clearAndSetSemantics {},
             style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
         )
     }
+}
+
+@Composable
+private fun StatusText(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.bodyLarge,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        textAlign = TextAlign.Center,
+    )
 }
 
 @Composable

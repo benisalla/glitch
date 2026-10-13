@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Shuffle Menu</string>
+    <string name="menu_loading">Loading apps</string>
+    <string name="menu_empty">No apps to show</string>
+    <string name="menu_error">Couldn\'t load your apps.</string>
+    <string name="menu_retry">Try again</string>
+    <string name="menu_app_unavailable">%1$s is no longer available</string>
+    <string name="menu_app_launch_failed">Couldn\'t open %1$s</string>
 </resources>

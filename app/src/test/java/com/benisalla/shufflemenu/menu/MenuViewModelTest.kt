@@ -196,7 +196,7 @@ class MenuViewModelTest {
         catalog.failure = IllegalStateException("boom")
         val vm = viewModel()
         vm.onMenuStarted()
-        assertEquals(MenuUiState.Error("boom"), vm.state.value)
+        assertEquals(MenuUiState.Error, vm.state.value)
 
         catalog.failure = null
         vm.retry()
@@ -225,7 +225,7 @@ class MenuViewModelTest {
         vm.launch(gone)
 
         assertEquals(before - gone, vm.readyApps())
-        assertEquals("App ${gone.packageName.removePrefix("pkg.")} is no longer available", vm.message.value)
+        assertEquals(MenuMessage.Unavailable(gone.label), vm.message.value)
         vm.consumeMessage()
         assertNull(vm.message.value)
     }
@@ -239,7 +239,7 @@ class MenuViewModelTest {
 
         vm.launch(target)
 
-        assertEquals("Couldn't open ${target.label}", vm.message.value)
+        assertEquals(MenuMessage.LaunchFailed(target.label), vm.message.value)
         assertEquals(1, catalog.loadCount)
     }
 }
