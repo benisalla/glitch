@@ -1,6 +1,6 @@
 # Glitch: product vision and UX
 
-Prepared October 2026 by the product and UX design role. **This is a proposal.** The current `AGENTS.md` lists prompts, timers, blockers and usage tracking as non-goals, and it bans every permission. Nothing in this document is in scope until the owner approves it. Each phase below also needs `AGENTS.md`, the README and the privacy policy updated in the same change.
+Prepared October 2026 by the product and UX design role. **This is a proposal.** When this was written, `AGENTS.md` listed prompts, timers, blockers and usage tracking as non-goals, and it banned every permission. Nothing in this document is in scope until the owner approves it. Each phase below also needs `AGENTS.md`, the README and the privacy policy updated in the same change.
 
 Related docs: `store/marketing/research.md` (what the evidence does and does not support) and `store/marketing/copy-notes.md` (brand voice). A research scientist and an Android feasibility engineer are working in parallel; where this doc says "needs feasibility check", their findings decide.
 
@@ -10,14 +10,14 @@ Related docs: `store/marketing/research.md` (what the evidence does and does not
 
 ### Vision statement
 
-> Your phone is designed to be tapped without thinking. Glitch is a small, kind interruption in that loop: your apps appear in a new order, so you look, then choose. We are building it with ADHD and fast-wandering attention in mind. That means no lectures, no streaks and no lockouts, only gentle cues you set yourself and can switch off in one tap. Glitch helps you notice the moment, and what you do with it is your call.
+> Your phone is designed to be tapped without thinking. Glitch is a small, kind interruption in that loop: your apps appear in a new order, so you look, then choose. It is designed using research on attention, habits and ADHD-friendly design, for people with ADHD and anyone whose attention wanders quickly. That means no lectures, no streaks and no lockouts, only gentle cues you set yourself and can switch off in one tap. Glitch gives you a moment to notice, and what you do with it is your call.
 
 ### Honest promise line (README and store)
 
-> Glitch is just getting started. Today it shuffles your apps so you look before you tap. Next, we're adding small, optional cues that you control, designed with ADHD and distractibility in mind. It will never lecture you, lock you out or send your data anywhere.
+> Glitch is just getting started. Today it shuffles your apps so you look before you tap. Next, we're adding small, optional cues that you control, designed using research on attention and habits (README only, never the store listing). It will never lecture you, lock you out or send your data anywhere.
 
 Wording rules (from `research.md` and Play policy):
-- Fine: "designed with ADHD and distractibility in mind", "a moment to choose", "cues you write yourself", "you stay in control".
+- Fine (outside the store listing): "designed using research on attention, habits and ADHD-friendly design", "a moment to choose", "cues you write yourself", "you stay in control".
 - Never: "treats / fixes / helps ADHD", "improves focus or attention", "reduces screen time", "clinically proven", "beats phone addiction", or any study number next to the app's name.
 
 ---
@@ -174,7 +174,7 @@ A shared building block across concepts: **"Mark as noisy"**. The user long-pres
   ```
 - **Avoids shame and abandonment:** "Open" is never disabled and "rest" is a valid intention, so watching videos on purpose is respected (P3). The reminder is the user's own words. "Not now" gives a small win without a scoreboard. In the one sec research, the explicit "dismiss/don't open" choice had the strongest effect, while a message alone did not (research.md #7). This concept adds that choice, but we still claim nothing.
 - **Needs:** None, **but it only applies to apps opened through Glitch**. Opening TikTok from the home screen skips it. That's honest and in character: Glitch is the place you come to choose. Copy must say so plainly.
-- **Builds the reminder library:** this is where users first write reminders. The same library powers Concepts 6, 9 and the Reels Glitch (section 7).
+- **Builds the reminder library:** this is where users first write reminders. The same library powers Concepts 6, 9 and the Scroll Glitch (section 7).
 
 ### Concept 4: Focus sets (show only what this moment needs)
 
@@ -343,15 +343,15 @@ Every phase needs owner approval and an `AGENTS.md` update (non-goals, privacy s
 - End-of-day "one good moment" card and optional reminder (Concept 8; owner decision on the local counter)
 - Permission asked only when the user turns one of these on. Every v1.1 feature keeps working with it denied.
 
-### v2.0: "The Reels Glitch" (special access, separate opt-in; future vision)
+### v2.0: "The Scroll Glitch" (special access, separate opt-in; future vision)
 **Why now:** users will have a library of reminders that work for them and a reason to trust us, and that's the only foundation strong enough for a feature that watches for one specific moment.
 
-- **Headline: Reels Glitch** (section 7)
+- **Headline: Scroll Glitch** (section 7)
 - Optional usage-access time cues that work even when the app was opened from the home screen (needs `PACKAGE_USAGE_STATS` special access; feasibility check)
 
 ---
 
-## 7. North star (future vision): the Reels Glitch
+## 7. North star (future vision): the Scroll Glitch
 
 > **Status: future vision, not planned for any release yet.** It needs owner approval, a rewrite of the `AGENTS.md` privacy rules, a Google Play policy review, and the Android feasibility engineer's findings. Nothing here is a commitment.
 
@@ -372,7 +372,7 @@ When you've been swiping through short-form video (Instagram Reels, YouTube Shor
                                                                         + right timing
 ```
 
-Each step reuses the one before it: the habit of looking (v1.0), the reminder library (v1.1), and proof that Glitch's interruptions are kind and rare (v1.2). The Reels Glitch only works if all three are already true.
+Each step reuses the one before it: the habit of looking (v1.0), the reminder library (v1.1), and proof that Glitch's interruptions are kind and rare (v1.2). The Scroll Glitch only works if all three are already true.
 
 ### Setup (under 1 minute, all optional)
 
@@ -456,7 +456,7 @@ The feed freezes behind a navy overlay, and a short "glitch" animation runs (til
 | False alarms (P7: detection is fragile) | Only fires after a sustained signal; if detection fails, it fails silent (no glitch) rather than loud. Per-app toggles so a broken app can be switched off. |
 | Feels like surveillance | Only the selected apps are checked; no screen text is read or stored; no network permission in the app at all; a plain "what Glitch sees" page. |
 | Arms race with bypass | We don't fight it. Disabling is one tap and easy to find. The bet is that kind, self-written interruptions are worth keeping, not hard to remove. |
-| Glitch's "no permissions" identity | Ship the Reels Glitch as a **separate opt-in add-on** (e.g. a companion app "Glitch Reels", or a separate build), so the core Glitch keeps its "Permissions: none" badge. Owner and engineer decide; this conflicts with "no extra modules" and needs an explicit exception. |
+| Glitch's "no permissions" identity | Ship the Scroll Glitch as a **separate opt-in add-on** (e.g. a companion app "Glitch Guard", or a separate build), so the core Glitch keeps its "Permissions: none" badge. Owner and engineer decide; this conflicts with "no extra modules" and needs an explicit exception. |
 
 ### What it needs from the phone (pending feasibility check)
 
@@ -481,7 +481,7 @@ Glitch has no analytics and won't add them. To learn whether this works we rely 
 1. Approve dropping "prompts" and "timers" from the non-goals list for the v1.1 intention moment and evening set?
 2. Is a local, daily-reset counter of "Not now" taps acceptable (Concept 8), or is it "usage tracking"?
 3. v1.2: accept one optional runtime permission (`POST_NOTIFICATIONS`) and update the "Permissions: none" badge to "No permissions required"?
-4. Reels Glitch: separate companion app, separate build flavor, or inside Glitch? (It conflicts with "no extra modules" and "no accessibility".)
+4. Scroll Glitch: separate companion app, separate build flavor, or inside Glitch? (It conflicts with "no extra modules" and "no accessibility".)
 5. New dependency for storage (DataStore) or plain `SharedPreferences`? The engineer should advise.
 
 ---

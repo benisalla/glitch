@@ -4,7 +4,7 @@ Prepared October 2026 for product planning. It builds on [`store/marketing/resea
 
 **How sources were checked.** Every source below was opened. "Full text" means we read the methods and results. "Abstract" means we only saw the abstract or the publisher/index record (Europe PMC, Crossref, Semantic Scholar, arXiv listing). "Secondary" means the primary text was blocked to us and the numbers come from reporting about it; those rows say so. No number in this file was filled in from memory.
 
-**Scope reminder.** Today AGENTS.md rules out prompts, blockers, timers, usage tracking, accessibility and usage-access permissions, and any claim about focus. Most ideas below would change that scope and need the owner's explicit approval. This file is evidence, not a decision.
+**Scope reminder.** When this review was written, AGENTS.md ruled out prompts, blockers, timers, usage tracking, accessibility and usage-access permissions, and any claim about focus. Most ideas below would change that scope and need the owner's explicit approval. This file is evidence, not a decision.
 
 ---
 

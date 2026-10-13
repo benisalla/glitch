@@ -2,7 +2,7 @@
 
 Status: research note for the owner. Nothing here is approved scope. AGENTS.md still lists prompts, blockers, timers and usage tracking as non-goals, and HOME as forbidden. Any feature below needs the owner's explicit sign-off and an AGENTS.md update first.
 
-Baseline (from `rename/glitch`): a standalone menu, minSdk 26, targetSdk 36, `allowBackup="false"`. The manifest declares **zero `<uses-permission>`**, and package visibility comes only from a `<queries>` entry for `MAIN`/`LAUNCHER`. No network code. Data safety: nothing collected or shared.
+Baseline (from `rename/glitch`): a standalone menu, minSdk 26, targetSdk 36, `allowBackup="false"`. The source manifest declares **zero `<uses-permission>`** (the merged manifest only adds the AndroidX app-private DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION), and package visibility comes only from a `<queries>` entry for `MAIN`/`LAUNCHER`. No network code. Data safety: nothing collected or shared.
 
 Verified 2026-10-13 against developer.android.com and the Play Console Help Center (sources at the end). Anything not confirmed in an official doc is marked **(unverified)**.
 

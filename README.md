@@ -16,13 +16,13 @@ Glitch is an Android app menu that lists your installed apps in a random order e
 </p>
 
 ## Vision
-Your phone is designed to be tapped without thinking. Glitch is a small, kind interruption in that loop: today it shuffles your apps so you look before you tap. Next, it grows into gentle cues you set yourself, designed with ADHD and distractibility in mind. No lectures, no streaks, no lockouts, and nothing leaves your phone. Read the full [vision](VISION.md).
+Your phone is designed to be tapped without thinking. Glitch is a small, kind interruption in that loop: today it shuffles your apps so you look before you tap. Next, it grows into gentle cues you set yourself, designed using research on attention, habits and ADHD-friendly design. No lectures, no streaks, no lockouts, and nothing leaves your phone. Read the full [vision](VISION.md).
 
 ### Coming next
 - **v1.1, intention moment:** mark the apps that pull you in, get a calm "Still want this?" pause with your own if-then plans, anchor your essential apps, and switch to focus sets. Still no permissions.
 - **v1.2, gentle cues:** an optional kind time reminder, a focus widget and a Quick Settings tile.
-- **v2.0, time awareness:** optional on-device usage awareness, and a first Reels Glitch that steps in with *your own* reminder after long short-video sessions.
-- **Future, the Reels Glitch add-on:** detects endless Reels and Shorts scrolling and helps you out, as a separate opt-in companion app.
+- **v2.0, time awareness:** optional on-device usage awareness, and a first Scroll Glitch that steps in with *your own* reminder after long short-video sessions.
+- **Future, the Scroll Glitch add-on:** detects endless Reels and Shorts scrolling and offers you a way out, as a separate opt-in companion app.
 
 See the [roadmap](ROADMAP.md) and the research behind it in [`product/`](product/). Glitch is not a medical device and does not treat ADHD or any condition.
 
