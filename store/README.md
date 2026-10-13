@@ -11,8 +11,9 @@ Everything needed to publish Glitch on Google Play, plus a step-by-step checklis
 | `fastlane/metadata/android/en-US/changelogs/default.txt` | "What's new" text for 1.0.0 (max 500 chars). |
 | `graphics/icon-512.png` | Hi-res app icon, 512 x 512, 32-bit PNG. |
 | `graphics/feature-graphic.png` | Feature graphic, 1024 x 500, 24-bit PNG. |
-| `graphics/*.svg` | Vector versions of the two graphics. |
-| `tools/make_graphics.py` | Generates the launcher icon vectors and the graphics above from one design. |
+| `brand/glitch-icon.png` | The Glitch logo: the single source for every icon and graphic. |
+| `graphics/marketing/*.png` | The 5 phone screenshots to upload, built by `tools/make_screenshots.py`. |
+| `tools/make_graphics.py` | Builds the launcher icon and the graphics above from the logo. |
 | `data-safety.md` | Exact answers for Data safety, App content, content rating and category. |
 | `../docs/privacy-policy.md` | Privacy policy (needs to be hosted at a public URL, see step 5). |
 
@@ -22,9 +23,16 @@ The Play title is "Glitch: Break the Autopilot" (see `fastlane/metadata/android/
 
 ### Regenerating the icon and graphics
 ```
-python3 store/tools/make_graphics.py   # needs Python 3 + Pillow
+python3 store/tools/make_graphics.py
 ```
-This rewrites `app/src/main/res/drawable/ic_launcher_{background,foreground,monochrome}.xml` and everything in `store/graphics/`. Edit the script, not the generated files. The design: a 3 x 3 grid of app tiles where the middle tile is gold and tilted ("shuffled"). The adaptive icon has a background layer, a foreground that stays inside the 66 dp safe zone, and a monochrome layer for Android 13+ themed icons.
+python3 store/tools/make_screenshots.py   # run after make_graphics.py: it reads glitch-mark.png
+```
+Both scripts need Python 3, Pillow and the Noto Sans fonts (`fonts-noto` on Debian/Ubuntu). To change the logo, replace `store/brand/glitch-icon.png` and run both scripts. `make_graphics.py` writes:
+- `app/src/main/res/mipmap-*/ic_launcher_{foreground,monochrome}.png`: the adaptive-icon layers for every density. The mark is kept inside the 66 dp safe zone, and the monochrome layer is for Android 13+ themed icons.
+- `ic_launcher_background` in `app/src/main/res/values/colors.xml`: the logo navy.
+- `store/brand/glitch-mark.png`, `store/graphics/icon-512.png` and `store/graphics/feature-graphic.png`.
+
+The design is a white ring (the loop of autopilot) broken by a tilted gold tile (the glitch). Edit the logo or the scripts, not the generated files.
 
 ---
 

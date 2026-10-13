@@ -1,6 +1,6 @@
 Glitch the autopilot. Look, then tap.
 
-Glitch is a menu of the apps on your phone, with their usual icons and names, in a random order. Every time you open it, the order is reshuffled. Your thumb can't tap a spot from memory, so you look at the list and choose. One small glitch in a moment you repeat many times a day.
+Glitch shows the apps on your phone, with their usual icons and names, in a random order. Every time you open it, the order is reshuffled. Your thumb can't tap a spot from memory, so you look at the list and choose. One small glitch in a moment you repeat many times a day.
 
 How it works
 1. Open Glitch from your home screen.
