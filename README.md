@@ -34,7 +34,7 @@ See the [roadmap](ROADMAP.md) and the research behind it in [`product/`](product
 ## What it does
 - Shows every launchable app on the device (icon and name) in a shuffled order. Tap an app and it opens normally.
 - **As a normal app:** shuffles once each time you open Glitch. The order stays the same while it is on screen, including when you rotate the phone. Coming back after opening an app gives a new order.
-- **As your home screen (optional):** reshuffles each time you unlock the phone (after the screen has been off), and when the phone restarts. Going back to Home while you use the phone does not reshuffle, so the order stays steady until the next unlock.
+- **As your home screen (optional):** reshuffles each time you unlock the phone (after the screen has been off), and when Android restarts Glitch (for example after a reboot or to free memory). Going back to Home while you use the phone does not reshuffle, so the order stays steady until the next unlock.
 - **Dock:** up to 4 apps stay in a fixed dock and are left out of the shuffle. The defaults are phone, messages, camera and browser. Long-press any app and choose "Add to dock" or "Remove from dock".
 - Long-press an app and choose "App info" to open its Android settings page.
 - If an app is installed or removed while Glitch is open, the list updates without reshuffling the other entries.
@@ -95,7 +95,7 @@ Open the app drawer, long-press "Glitch", and choose "Add to Home". Open Glitch 
 - On other Android phones: Settings → Apps → Default apps → Home app → Glitch (the exact names vary by phone).
 
 **Switch back**
-- In Glitch, choose "Change home app" and pick your previous home screen (on Samsung, "One UI Home").
+- In Glitch, tap ⋮ next to the Glitch title (or long-press any app) and choose "Change home app", then pick your previous home screen (on Samsung, "One UI Home").
 - Or, on Samsung: Settings → Apps → Choose default apps → Home app → One UI Home. Your old home screen and app drawer come back exactly as they were.
 - If you uninstall Glitch, Android switches to another installed home app on its own.
 

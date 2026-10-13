@@ -4,7 +4,7 @@ Glitch shows the apps on your phone, with their usual icons and names, in a rand
 
 Use it your way
 • As a normal app: open Glitch from your home screen and get a fresh order every time.
-• As your home screen, if you choose: your apps reshuffle every time you unlock the phone. The order stays steady while you use it, and going back to Home doesn't move anything.
+• As your home screen, if you choose: your apps reshuffle every time you unlock the phone. The order stays steady while you use it, and going back to Home normally doesn't move anything.
 
 How it works
 1. Open Glitch, or make it your home screen.
@@ -23,7 +23,7 @@ A dock for everyday apps
 Make it your home screen, or switch back
 • In Glitch, tap "Make Glitch your home screen" and pick Glitch.
 • Or go to Settings → Apps → Choose default apps → Home app → Glitch (names vary a little between phones).
-• To switch back, tap "Change home app" in Glitch, or pick your previous home app in the same Settings screen. Your old home screen and app drawer are exactly as you left them.
+• To switch back, tap ⋮ next to the Glitch title and choose "Change home app", or pick your previous home app in the same Settings screen. Your old home screen and app drawer are exactly as you left them.
 
 Steady while you look
 • The order does not jump around while you look, even when you rotate the phone.
@@ -45,7 +45,7 @@ What it doesn't do
 
 FAQ
 Does it replace my home screen?
-Only if you choose to. Glitch works as a normal app. If you set it as your home app, you can switch back anytime in Glitch ("Change home app") or in Settings → Apps → Choose default apps → Home app.
+Only if you choose to. Glitch works as a normal app. If you set it as your home app, you can switch back anytime in Glitch (⋮ → "Change home app") or in Settings → Apps → Choose default apps → Home app.
 
 When does the order change?
 As a normal app: each time you open Glitch. As your home screen: each time you unlock the phone. It never changes while you're looking at it.
