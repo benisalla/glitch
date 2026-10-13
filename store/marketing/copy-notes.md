@@ -6,7 +6,7 @@ The listing text itself lives in `store/fastlane/metadata/android/en-US/`. This 
 | Field | Text | Chars (limit) |
 |---|---|---|
 | Title | Glitch: Break the Autopilot | 27 (30) |
-| Short description | Glitch the autopilot. Your apps, shuffled on every open. Look, then tap. | 72 (80) |
+| Short description | Glitch the autopilot. Apps shuffled on every open, plus a dock. Look, then tap. | 79 (80) |
 | Full description | see `full_description.txt` | 2638 (4000) |
 | What's new (1.0.0) | see `changelogs/default.txt` | 427 (500) |
 
@@ -39,7 +39,7 @@ Play ranks mostly on the title, then the short description, then natural use of 
 
 Deliberately not used:
 - "Glitch" alone in the title. Without "Break the Autopilot" it would compete with games and effects apps. Glitch is more than a menu: the shuffle is only its first feature, so "menu" stays out of the title.
-- "Launcher" in the title. Since v1.1 Glitch can be your home screen, but it is a focused one (no widgets, wallpaper or search yet); the full description explains the home-screen mode instead, so people know what to expect.
+- "App drawer" and "launcher" in the title or short description. Glitch is not a launcher or drawer replacement (a home-screen mode was tried in 1.1.0 and removed in 1.1.1), and those words would attract people expecting one.
 - Any focus, attention, memory, productivity, mindfulness, detox, screen-time, addiction or mental-health wording, and no mention of any condition. Not allowed by AGENTS.md and risky under Play's metadata policy.
 - Film or pop-culture references to "breaking out" of a simulation, and their trademarked names. The "autopilot" wording carries the vibe on its own.
 - Brand names (phone makers, other apps), superlatives, "free" in the title, emoji, ALL CAPS.
@@ -56,7 +56,7 @@ For Play Console store listing experiments (Grow > Store presence > Store listin
 
 | Variant | Text | Chars |
 |---|---|---|
-| Current (tagline angle) | Glitch the autopilot. Your apps, shuffled on every open. Look, then tap. | 72 |
+| 1.0 (tagline angle) | Glitch the autopilot. Your apps, shuffled on every open. Look, then tap. | 72 |
 | A (plain habit angle) | Apps in a new random order on every open, so you look before you tap. | 69 |
 | B (privacy angle) | Your apps, shuffled on every open. No permissions, no internet, no ads. | 71 |
 

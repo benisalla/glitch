@@ -1,6 +1,6 @@
 # Play Console answers: Data safety, App content, category
 
-Copy these answers into Play Console. They describe the app as built today (1.1.0): no permissions, no `INTERNET`, no SDKs that collect data, package visibility only through the `<queries>` entry for `MAIN`/`LAUNCHER`. From 1.1.0 Glitch can optionally be the home app (a `HOME` intent filter, which is not a permission), so the answers below are unchanged. **If any of that changes, review this file before the next release.**
+Copy these answers into Play Console. They describe the app as built today (1.1.1): no permissions, no `INTERNET`, no SDKs that collect data, package visibility only through the `<queries>` entry for `MAIN`/`LAUNCHER`. **If any of that changes, review this file before the next release.**
 
 Play Console menu names change from time to time. If a question below is worded a little differently in the console, answer by meaning.
 
@@ -37,7 +37,7 @@ The listing will show "No data collected" and "No data shared with third parties
 | **Financial features** | My app does not provide any financial features. |
 | **Health apps** | My app does not have any health features. |
 | **Advertising ID** | **No**, the app does not use an advertising ID. (It does not declare `com.google.android.gms.permission.AD_ID` and has no ads or analytics SDK.) |
-| **Sensitive permissions / Permissions declarations** | None needed. The app requests no permissions, also when it is the home app. Being selectable as a home app needs no Play declaration. |
+| **Sensitive permissions / Permissions declarations** | None needed. The app requests no permissions. |
 | **Package visibility (`QUERY_ALL_PACKAGES`)** | **No declaration needed.** The app does not request `QUERY_ALL_PACKAGES`. It uses a narrow `<queries>` intent filter for `MAIN`/`LAUNCHER`, which needs no Play declaration. |
 | **Accessibility API, foreground service, exact alarms, etc.** | Not used, no declarations. |
 
@@ -64,8 +64,8 @@ The listing will show "No data collected" and "No data shared with third parties
 | Field | Suggestion |
 |---|---|
 | App or game | App |
-| **Category** | **Personalization** (recommended from 1.1.0) or **Tools**. From 1.1.0 Glitch can be set as the home screen, and Play lists home-screen launchers under Personalization. It also still works as a normal app, so Tools remains acceptable. Changing the category later is allowed. |
-| Tags | Optional. Pick up to 5 from Play's list that describe a simple utility. A launcher/home-screen tag is fine from 1.1.0 (it is an optional mode). Skip any tag that implies a focus/productivity benefit. |
+| **Category** | **Tools** (recommended). The app is a utility that opens other apps. "Personalization" is mostly used for launchers, wallpapers and icon packs, and Glitch is not a launcher, so Tools is the more honest fit. |
+| Tags | Optional. Pick up to 5 from Play's list that describe a simple utility. Skip any tag that implies a home-screen (launcher) replacement or a focus/productivity benefit. |
 | Contact email (public) | `ismailbenalla52@gmail.com` |
 | Website (optional) | The GitHub Pages root, e.g. `https://<github-user>.github.io/<repo>/` |
 | Phone (optional) | Leave empty. |
