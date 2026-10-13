@@ -1,4 +1,4 @@
-package com.benisalla.shufflemenu.model
+package com.benisalla.glitch.model
 
 import android.graphics.drawable.Drawable
 import kotlinx.coroutines.flow.Flow

@@ -1,6 +1,6 @@
 # Play Store release kit
 
-Everything needed to publish Shuffle Menu on Google Play, plus a step-by-step checklist.
+Everything needed to publish Glitch on Google Play, plus a step-by-step checklist.
 
 ## What is in this folder
 | Path | What it is |
@@ -18,7 +18,7 @@ Everything needed to publish Shuffle Menu on Google Play, plus a step-by-step ch
 
 The text files use the [fastlane `supply`](https://docs.fastlane.tools/actions/supply/) layout, so they can be uploaded automatically later. For a first release, copy and paste them into Play Console by hand; fastlane is not required.
 
-The Play title is "Shuffle Menu: Random App Order" (see `fastlane/metadata/android/en-US/title.txt`); the name under the icon on the phone is "Shuffle Menu" (from `strings.xml`).
+The Play title is "Glitch: Shuffled App Menu" (see `fastlane/metadata/android/en-US/title.txt`); the name under the icon on the phone is "Glitch" (from `strings.xml`).
 
 ### Regenerating the icon and graphics
 ```
@@ -42,13 +42,13 @@ Steps marked **(owner)** need your Google account, money, identity or private ke
 The upload key signs the bundles you upload. Google then re-signs the app with its own app signing key (step 4).
 ```
 keytool -genkeypair -v \
-  -keystore ~/keys/shuffle-menu-upload.jks \
+  -keystore ~/keys/glitch-upload.jks \
   -alias upload -keyalg RSA -keysize 2048 -validity 10000
 ```
 - [ ] Store the `.jks` file **outside the repo** and back it up (password manager or encrypted drive). Never commit it.
 - [ ] Create `keystore.properties` in the repo root (it must stay untracked; it is a secret):
   ```
-  storeFile=/home/<you>/keys/shuffle-menu-upload.jks
+  storeFile=/home/<you>/keys/glitch-upload.jks
   storePassword=...
   keyAlias=upload
   keyPassword=...
@@ -69,15 +69,15 @@ keytool -genkeypair -v \
 - [ ] Optional sanity check: install a release build on your phone and open a few apps from the menu.
 
 ### 4. Create the app and turn on Play App Signing (owner)
-- [ ] Play Console > **Create app**: name "Shuffle Menu: Random App Order", default language English (United States), App, Free. Accept the declarations.
+- [ ] Play Console > **Create app**: name "Glitch: Shuffled App Menu", default language English (United States), App, Free. Accept the declarations.
 - [ ] When you upload the first AAB, accept **Play App Signing** (Google-managed app signing key). This is the default and lets you reset a lost upload key later.
 
 ### 5. Host the privacy policy (owner)
-Play needs a public URL. This repository is **private**, and GitHub Pages on a private repo needs a paid plan, so use one of these:
-- [ ] **Public GitHub Gist (simplest):** `gh gist create --public docs/privacy-policy.md`, open the gist and use its URL. Only the policy becomes public, not the code.
-- [ ] **Google Sites:** paste the text of `docs/privacy-policy.md` into a free page and publish it.
-- [ ] **GitHub Pages** (only if the repo is made public or you have a paid plan): repo **Settings > Pages**, Source "Deploy from a branch", Branch `main`, folder `/docs`. The policy is then at `https://benisalla.github.io/shuffle-app-menu/privacy-policy.html`.
-- [ ] Open the URL in a private browser window to confirm it loads without signing in.
+Play needs a public URL. GitHub Pages is free once the repository is public:
+- [ ] Make the repository public first: repo **Settings > General > Danger Zone > Change visibility > Public** (or `gh repo edit benisalla/glitch-menu --visibility public --accept-visibility-change-consequences`). While it is private, Pages needs a paid plan and the README CI badge shows as broken to visitors.
+- [ ] On GitHub: repo **Settings > Pages > Build and deployment**: Source "Deploy from a branch", Branch `main`, folder `/docs`. Save.
+- [ ] After a minute the policy is at `https://benisalla.github.io/glitch-menu/privacy-policy.html`. Open it in a private browser window to confirm it loads.
+- [ ] Alternative: a public Gist (`gh gist create --public docs/privacy-policy.md`) or a Google Sites page.
 
 ### 6. Fill in the store listing
 Play Console > **Grow > Store presence > Main store listing**:
@@ -119,7 +119,7 @@ Ready to upload: `store/graphics/marketing/01-hero.png` … `05-privacy.png` (10
 
 Play requirements for phone screenshots: **at least 2** (up to 8), PNG or JPEG, max 8 MB each, 16:9 or 9:16, each side between 320 px and 3840 px. Use **1080 x 1920 or larger** in portrait; at least 4 such screenshots are needed for the app to be eligible for some Play promotion surfaces.
 
-Use an emulator or a phone with only common apps installed so no personal app names appear. Open Shuffle Menu, then capture the two raw screenshots the generator reads, one in light mode and one in dark mode:
+Use an emulator or a phone with only common apps installed so no personal app names appear. Open Glitch, then capture the two raw screenshots the generator reads, one in light mode and one in dark mode:
 ```
 adb shell cmd uimode night no
 adb exec-out screencap -p > store/screenshots/phone-1-light.png
@@ -136,6 +136,6 @@ Do not add text overlays that claim benefits such as better focus or memory.
 ## Things only the owner can do
 - Create and pay for the Play developer account, verify identity and device.
 - Create and safely back up the upload keystore and its passwords; write `keystore.properties`.
-- Publish the privacy policy at a public URL (Gist, Google Sites, or GitHub Pages).
+- Turn on GitHub Pages for the privacy policy (or host it elsewhere).
 - Recruit 12+ closed testers and keep them for 14 consecutive days.
 - Submit forms, apply for production, and press "Send for review".

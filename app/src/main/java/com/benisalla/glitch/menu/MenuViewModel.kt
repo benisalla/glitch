@@ -1,14 +1,14 @@
-package com.benisalla.shufflemenu.menu
+package com.benisalla.glitch.menu
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.benisalla.shufflemenu.model.AppCatalog
-import com.benisalla.shufflemenu.model.AppEntry
-import com.benisalla.shufflemenu.model.AppLauncher
-import com.benisalla.shufflemenu.model.LaunchResult
+import com.benisalla.glitch.model.AppCatalog
+import com.benisalla.glitch.model.AppEntry
+import com.benisalla.glitch.model.AppLauncher
+import com.benisalla.glitch.model.LaunchResult
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow

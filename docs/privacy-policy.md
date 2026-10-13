@@ -1,12 +1,12 @@
 ---
-title: Shuffle App Menu - Privacy Policy
+title: Glitch - Privacy Policy
 ---
 
-# Privacy Policy for Shuffle App Menu
+# Privacy Policy for Glitch
 
 **Effective date:** 2026-10-13
 
-Shuffle App Menu ("the app", package `com.benisalla.shufflemenu`) is an Android app that shows the apps installed on your phone in a random order. This policy explains what the app does with information. The short version: **it collects nothing, and nothing leaves your phone.**
+Glitch ("the app", package `com.benisalla.glitch`) is an Android app that shows the apps installed on your phone in a random order. This policy explains what the app does with information. The short version: **it collects nothing, and nothing leaves your phone.**
 
 ## What the app uses
 To build its menu, the app asks Android for the list of apps that can be opened from a launcher (their name and icon). It uses Android's narrow "launcher apps" visibility for this, not access to every package on the device.

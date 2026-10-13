@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Single source of truth for the Shuffle Menu icon artwork.
+"""Single source of truth for the Glitch icon artwork.
 
 Generates, from one geometry definition:
   - app/src/main/res/drawable/ic_launcher_{background,foreground,monochrome}.xml
@@ -128,8 +128,8 @@ ICON_OFFSET = -18 * ICON_SCALE
 FG_W, FG_H = 1024, 500
 FG_GRID_SCALE = 6.4  # 36-unit grid -> ~230 px
 FG_GRID_CX, FG_GRID_CY = 250, 250
-TITLE = "Shuffle Menu"
-TAGLINE = ["Your apps in a new order", "every time you open it."]
+TITLE = "Glitch"
+TAGLINE = ["Glitch the autopilot.", "Look, then tap."]
 FOOTER = "No permissions · No internet · No tracking"
 FONT_BOLD = "/usr/share/fonts/truetype/noto/NotoSans-Bold.ttf"
 FONT_REG = "/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf"

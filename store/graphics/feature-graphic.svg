@@ -10,9 +10,9 @@
   <rect x="218" y="301.2" width="64" height="64" rx="16" fill="#FFFFFF"/>
   <rect x="301.2" y="301.2" width="64" height="64" rx="16" fill="#FFFFFF"/>
   <g font-family="Noto Sans, sans-serif">
-    <text x="470" y="205" font-size="72" font-weight="700" fill="#FFFFFF">Shuffle Menu</text>
-    <text x="470" y="268" font-size="34" fill="#C9D1E6">Your apps in a new order</text>
-    <text x="470" y="312" font-size="34" fill="#C9D1E6">every time you open it.</text>
+    <text x="470" y="205" font-size="72" font-weight="700" fill="#FFFFFF">Glitch</text>
+    <text x="470" y="268" font-size="34" fill="#C9D1E6">Glitch the autopilot.</text>
+    <text x="470" y="312" font-size="34" fill="#C9D1E6">Look, then tap.</text>
     <text x="470" y="372" font-size="22" font-weight="700" fill="#FFC857">No permissions · No internet · No tracking</text>
   </g>
 </svg>

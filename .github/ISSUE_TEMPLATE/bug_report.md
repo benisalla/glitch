@@ -14,4 +14,4 @@ labels: bug
 **Device**
 - Phone model:
 - Android version:
-- App version (Settings > Apps > Shuffle Menu):
+- App version (Settings > Apps > Glitch):

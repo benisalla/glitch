@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Shuffle Menu</string>
+    <string name="app_name">Glitch</string>
     <string name="menu_loading">Loading apps</string>
     <string name="menu_empty">No apps to show</string>
     <string name="menu_error">Couldn\'t load your apps.</string>

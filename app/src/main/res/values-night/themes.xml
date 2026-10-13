@@ -1,5 +1,5 @@
 <resources>
-    <style name="Theme.ShuffleMenu" parent="android:Theme.Material.NoActionBar">
+    <style name="Theme.Glitch" parent="android:Theme.Material.NoActionBar">
         <item name="android:windowBackground">@color/window_background</item>
     </style>
 </resources>

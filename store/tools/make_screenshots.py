@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Play Store marketing screenshots for Shuffle Menu.
+"""Play Store marketing screenshots for Glitch.
 
 Builds 1080x1920 (9:16) PNGs in store/graphics/marketing/ from the raw phone
 screenshots in store/screenshots/: a short headline on the brand background with
@@ -114,7 +114,7 @@ def accent_tile(img, x, y, size, angle=25):
 
 def shot_hero():
     img = canvas()
-    headline(ImageDraw.Draw(img), ["Your apps,", "in a new order"], "every time you open the menu")
+    headline(ImageDraw.Draw(img), ["Glitch the", "autopilot"], "Your apps in a new order, every time")
     phone(img, SHOTS / "phone-1-light.png")
     return img
 
@@ -123,7 +123,7 @@ def shot_tap():
     img = canvas()
     headline(ImageDraw.Draw(img), ["Look, then tap"], "Tap any app to open it as usual")
     x, top, scale = phone(img, SHOTS / "phone-1-light.png")
-    # Gmail tile in the raw 1080x2400 screenshot: about (600..740, 860..1060).
+    # Third column, fourth row tile in the raw 1080x2400 screenshot.
     highlight(img, (x + 590 * scale, top + 850 * scale, x + 750 * scale, top + 1065 * scale))
     return img
 
@@ -150,7 +150,7 @@ def shot_how():
     headline(d, ["Simple to use"], "Three steps, nothing to set up")
     ax, ay = tile_grid(d, W / 2, 620, 92, 26)
     accent_tile(img, ax, ay, 92)
-    step_card(img, d, 880, 1, "Open Shuffle Menu", "from your home screen")
+    step_card(img, d, 880, 1, "Open Glitch", "from your home screen")
     step_card(img, d, 1170, 2, "Find your app", "the order is new each time")
     step_card(img, d, 1460, 3, "Tap to open it", "come back for a fresh order")
     return img

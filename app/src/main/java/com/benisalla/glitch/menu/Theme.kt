@@ -1,4 +1,4 @@
-package com.benisalla.shufflemenu.menu
+package com.benisalla.glitch.menu
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -57,7 +57,7 @@ private val DarkColors = darkColorScheme(
 
 /** Material 3 theme following the system light/dark setting, with dynamic color on Android 12+. */
 @Composable
-fun ShuffleMenuTheme(
+fun GlitchTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit,
 ) {

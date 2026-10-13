@@ -1,4 +1,4 @@
-package com.benisalla.shufflemenu.model
+package com.benisalla.glitch.model
 
 /**
  * One launchable entry shown in the menu.

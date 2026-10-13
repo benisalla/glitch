@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "shuffle-app-menu"
+rootProject.name = "glitch"
 include(":app")

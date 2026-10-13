@@ -1,15 +1,15 @@
-package com.benisalla.shufflemenu
+package com.benisalla.glitch
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import com.benisalla.shufflemenu.apps.IntentAppLauncher
-import com.benisalla.shufflemenu.apps.PackageManagerAppCatalog
-import com.benisalla.shufflemenu.menu.MenuScreen
-import com.benisalla.shufflemenu.menu.MenuViewModel
-import com.benisalla.shufflemenu.menu.ShuffleMenuTheme
+import com.benisalla.glitch.apps.IntentAppLauncher
+import com.benisalla.glitch.apps.PackageManagerAppCatalog
+import com.benisalla.glitch.menu.MenuScreen
+import com.benisalla.glitch.menu.MenuViewModel
+import com.benisalla.glitch.menu.GlitchTheme
 
 /**
  * Standalone shuffled app menu. It is opened from the user's existing home
@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            ShuffleMenuTheme {
+            GlitchTheme {
                 MenuScreen(viewModel = viewModel, loadIcon = catalog::loadIcon)
             }
         }

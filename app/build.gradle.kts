@@ -6,7 +6,7 @@ plugins {
 }
 
 // Release signing comes from a gitignored keystore.properties at the repo root, or from
-// SHUFFLE_KEYSTORE_PATH / SHUFFLE_KEYSTORE_PASSWORD / SHUFFLE_KEY_ALIAS / SHUFFLE_KEY_PASSWORD.
+// GLITCH_KEYSTORE_PATH / GLITCH_KEYSTORE_PASSWORD / GLITCH_KEY_ALIAS / GLITCH_KEY_PASSWORD.
 // Each value is read from keystore.properties first, then from its environment variable.
 // If nothing at all is configured, release builds are produced unsigned (CI does this).
 // If signing is only partly configured, or storeFile does not exist, building a release
@@ -19,10 +19,10 @@ val keystoreProperties = Properties().apply {
 
 // keystore.properties key to environment variable.
 val signingKeys = linkedMapOf(
-    "storeFile" to "SHUFFLE_KEYSTORE_PATH",
-    "storePassword" to "SHUFFLE_KEYSTORE_PASSWORD",
-    "keyAlias" to "SHUFFLE_KEY_ALIAS",
-    "keyPassword" to "SHUFFLE_KEY_PASSWORD",
+    "storeFile" to "GLITCH_KEYSTORE_PATH",
+    "storePassword" to "GLITCH_KEYSTORE_PASSWORD",
+    "keyAlias" to "GLITCH_KEY_ALIAS",
+    "keyPassword" to "GLITCH_KEY_PASSWORD",
 )
 
 fun envValue(envKey: String): String? =
@@ -40,9 +40,9 @@ val releaseSigningError: String? = when {
     !signingAttempted -> null
     !hasReleaseSigning -> "Release signing is partly configured; missing: " +
         missingSigningKeys.joinToString { "$it (${signingKeys.getValue(it)})" } +
-        ". Fill in keystore.properties or unset the SHUFFLE_* variables."
+        ". Fill in keystore.properties or unset the GLITCH_* variables."
     releaseStoreFile?.isFile != true -> "Release signing storeFile does not exist: " +
-        "$releaseStoreFile. Fix storeFile in keystore.properties or SHUFFLE_KEYSTORE_PATH."
+        "$releaseStoreFile. Fix storeFile in keystore.properties or GLITCH_KEYSTORE_PATH."
     else -> null
 }
 
@@ -56,11 +56,11 @@ gradle.taskGraph.whenReady {
 }
 
 android {
-    namespace = "com.benisalla.shufflemenu"
+    namespace = "com.benisalla.glitch"
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.benisalla.shufflemenu"
+        applicationId = "com.benisalla.glitch"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
