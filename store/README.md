@@ -42,13 +42,13 @@ Steps marked **(owner)** need your Google account, money, identity or private ke
 The upload key signs the bundles you upload. Google then re-signs the app with its own app signing key (step 4).
 ```
 keytool -genkeypair -v \
-  -keystore ~/keys/shuffle-menu-upload.jks \
+  -keystore ~/keys/glitch-upload.jks \
   -alias upload -keyalg RSA -keysize 2048 -validity 10000
 ```
 - [ ] Store the `.jks` file **outside the repo** and back it up (password manager or encrypted drive). Never commit it.
 - [ ] Create `keystore.properties` in the repo root (it must stay untracked; it is a secret):
   ```
-  storeFile=/home/<you>/keys/shuffle-menu-upload.jks
+  storeFile=/home/<you>/keys/glitch-upload.jks
   storePassword=...
   keyAlias=upload
   keyPassword=...
@@ -73,7 +73,8 @@ keytool -genkeypair -v \
 - [ ] When you upload the first AAB, accept **Play App Signing** (Google-managed app signing key). This is the default and lets you reset a lost upload key later.
 
 ### 5. Host the privacy policy (owner)
-Play needs a public URL. The repository is public, so GitHub Pages is free and simplest:
+Play needs a public URL. GitHub Pages is free once the repository is public:
+- [ ] Make the repository public first: repo **Settings > General > Danger Zone > Change visibility > Public** (or `gh repo edit benisalla/glitch-menu --visibility public --accept-visibility-change-consequences`). While it is private, Pages needs a paid plan and the README CI badge shows as broken to visitors.
 - [ ] On GitHub: repo **Settings > Pages > Build and deployment**: Source "Deploy from a branch", Branch `main`, folder `/docs`. Save.
 - [ ] After a minute the policy is at `https://benisalla.github.io/glitch-menu/privacy-policy.html`. Open it in a private browser window to confirm it loads.
 - [ ] Alternative: a public Gist (`gh gist create --public docs/privacy-policy.md`) or a Google Sites page.

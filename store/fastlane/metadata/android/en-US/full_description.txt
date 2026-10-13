@@ -12,7 +12,7 @@ Come back to the menu and the order changes again.
 Why glitch?
 Most of us open apps by position. The thumb knows where an icon lives and taps before we have really decided. That is handy, and it is also a habit that runs on autopilot.
 
-Glitch breaks tapping by position. When the icons are never in the same place twice, you read the names and pick the app you actually came for. It takes a second longer to find an app. That's the point: you get a second to choose.
+Glitch breaks tapping by position. When the icons are rarely in the same place twice, you read the names and pick the app you actually came for. It takes a second longer to find an app. That's the point: you get a second to choose.
 
 Steady while you look
 • The order stays put while the menu is on screen. It does not jump around, even when you rotate the phone.
