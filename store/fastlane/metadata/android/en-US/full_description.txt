@@ -49,5 +49,7 @@ Every app you can open from your app drawer is listed. Apps inside a work profil
 
 Does it cost anything?
 No. There are no ads and no in-app purchases.
+Coming next
+Glitch is just getting started. Next up are small, optional cues you control, designed with ADHD and distractibility in mind: a calm "Still want this?" pause with your own reminders for the apps that pull you in, focus sets, and gentle time cues. It will never lecture you, lock you out or send your data anywhere. Glitch is not a medical device.
 
 A shuffled app menu, private and quiet. Open it, look, then tap.
