@@ -10,6 +10,7 @@ Everything needed to publish Glitch on Google Play, plus a step-by-step checklis
 | `fastlane/metadata/android/en-US/full_description.txt` | Full description (max 4000 chars). |
 | `fastlane/metadata/android/en-US/changelogs/default.txt` | "What's new" text for 1.0.0 (max 500 chars). |
 | `fastlane/metadata/android/en-US/changelogs/2.txt` | "What's new" text for 1.1.0, versionCode 2 (max 500 chars). |
+| `fastlane/metadata/android/en-US/changelogs/3.txt` | "What's new" text for 1.1.1, versionCode 3 (max 500 chars). |
 | `graphics/icon-512.png` | Hi-res app icon, 512 x 512, 32-bit PNG. |
 | `graphics/feature-graphic.png` | Feature graphic, 1024 x 500, 24-bit PNG. |
 | `brand/glitch-icon.png` | The Glitch logo: the single source for every icon and graphic. |
@@ -69,7 +70,7 @@ Use the **one** release key you created in [`RELEASING.md`](../RELEASING.md) §1
   ```
   jarsigner -verify app/build/outputs/bundle/release/app-release.aab
   ```
-- [ ] Optional sanity check: install a release build on your phone and open a few apps from the menu. For 1.1.0 and later, also set Glitch as the home app (Settings → Apps → Choose default apps → Home app), lock and unlock to see a new order, check the dock, then switch back to One UI Home.
+- [ ] Optional sanity check: install a release build on your phone and open a few apps from the menu. Also check the dock: long-press an app to add it or remove it.
 
 ### 4. Create the app and turn on Play App Signing (owner)
 - [ ] Play Console > **Create app**: name "Glitch: Break the Autopilot", default language English (United States), App, Free. Accept the declarations.
@@ -95,9 +96,9 @@ Play Console > **Grow > Store presence > Main store listing**:
 - [ ] App access, Ads (**No**), Content rating, Target audience, Data safety (**No data collected**), Advertising ID (**No**), the rest: copy the answers from `data-safety.md`.
 
 ### 8. Internal testing first
-- [ ] **Testing > Internal testing** > Create release > upload `app-release.aab`. Release notes: `changelogs/default.txt` for 1.0.0, `changelogs/2.txt` for 1.1.0 (fastlane picks `changelogs/<versionCode>.txt` first and falls back to `default.txt`).
+- [ ] **Testing > Internal testing** > Create release > upload `app-release.aab`. Release notes: `changelogs/default.txt` for 1.0.0, `changelogs/2.txt` for 1.1.0, `changelogs/3.txt` for 1.1.1 (fastlane picks `changelogs/<versionCode>.txt` first and falls back to `default.txt`).
 - [ ] Add yourself (and anyone helping) as testers via an email list, open the opt-in link on your phone, install from Play.
-- [ ] Check on a real phone (ideally a Samsung): icon looks right (also with themed icons on), apps are listed, tapping opens them, returning gives a new order. For 1.1.0: make Glitch the home app, check that unlocking reshuffles and pressing Home does not, that the dock holds up to 4 apps, and that "Change home app" gets you back to One UI Home. Check the **Pre-launch report** in Play Console for crashes.
+- [ ] Check on a real phone (ideally a Samsung): icon looks right (also with themed icons on), apps are listed, tapping opens them, returning gives a new order. Check that the dock holds up to 4 apps and that dock apps are left out of the shuffle. If the phone had Glitch set as its home app under 1.1.0, check that after updating it is back on its usual home screen. Check the **Pre-launch report** in Play Console for crashes.
 
 ### 9. Closed testing: 12 testers for 14 days (owner, required for new personal accounts)
 Personal developer accounts created after 13 November 2023 must run a **closed test with at least 12 testers who stay opted in for at least 14 consecutive days** before they can apply for production access. (Checked against Play Console Help, "App testing requirements for new personal developer accounts", in October 2026. Re-check the page before starting, the numbers have changed before.)
@@ -122,7 +123,7 @@ Ready to upload: `store/graphics/marketing/01-hero.png` … `05-privacy.png` (10
 
 Play requirements for phone screenshots: **at least 2** (up to 8), PNG or JPEG, max 8 MB each, 16:9 or 9:16, each side between 320 px and 3840 px. Use **1080 x 1920 or larger** in portrait; at least 4 such screenshots are needed for the app to be eligible for some Play promotion surfaces.
 
-The listing describes the home-screen mode and dock from 1.1.0, so re-capture screenshots that show the dock (and the "Make Glitch your home screen" card if you like) before uploading the 1.1.0 listing.
+The listing describes the dock, so re-capture screenshots that show it before uploading the 1.1.1 listing.
 
 Use an emulator or a phone with only common apps installed so no personal app names appear. Open Glitch, then capture the two raw screenshots the generator reads, one in light mode and one in dark mode:
 ```

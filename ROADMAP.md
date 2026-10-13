@@ -12,13 +12,14 @@ Evidence ratings come from the research review: **moderate** means supported by 
 - Your apps in a new random order every time you open Glitch.
 - Light and dark themes, no permissions, no internet, no tracking.
 
-## v1.1: Glitch as your home screen (current release, no new permissions)
-Approved by the owner on 2026-10-13. Android only lets an app control where your apps appear if it is the home screen, so Glitch can now be one, if you choose.
-- **Optional home screen:** set Glitch as your home app from the "Make Glitch your home screen" card or in Settings (on Samsung: Settings → Apps → Choose default apps → Home app). "Change home app" takes you back at any time. Glitch still works as a normal app too.
-- **Shuffle on unlock:** as your home screen, Glitch reshuffles each time you unlock the phone. The order stays steady while you use the phone; going back to Home does not reshuffle.
+## v1.1: Dock (current release, no new permissions)
 - **Fixed dock:** up to 4 apps (defaults: phone, messages, camera, browser) keep a fixed spot and are left out of the shuffle. Long-press an app to add it to or remove it from the dock, or to open App info. This replaces the earlier "anchor apps" idea.
-- Not in this version: widgets, wallpaper, search.
+- Glitch stays a normal app: open it from its icon and get a new order every time.
 - Still no permissions, no internet, no tracking.
+
+**Removed in 1.1.1: the home-screen experiment.** v1.1.0 let you set Glitch as your home app, reshuffling on every unlock. After trying it, the owner decided on 2026-10-13 to remove it: a shuffled menu as the whole home screen felt like being trapped. Glitch never replaces your home screen again. If you had set it as your home app, your phone returns to its usual home screen after updating to 1.1.1.
+
+**Research, ongoing:** whether Glitch can shuffle the phone's own app drawer (for example Samsung's) without replacing the launcher. Findings will go in `product/samsung-drawer-research.md` (coming).
 
 ## v1.2: Intention moment (no new permissions)
 Why next: these features make the shuffle easier to live with and add the first gentle cue, without giving up "Permissions: none".
@@ -34,7 +35,7 @@ Why next: these features make the shuffle easier to live with and add the first 
 
 ## v1.3: Gentle cues (one optional permission: notifications)
 - **Kind time cue:** one notification a while after you open a noisy app from Glitch, showing your own reason. At most one per launch. Off by default.
-- **Focus widget and Quick Settings tile:** start a focus set from the home screen (for people who keep another home app).
+- **Focus widget and Quick Settings tile:** start a focus set from the home screen.
 
 ## v2.0: Time awareness (opt-in: usage access, a foreground service and notifications)
 - See time spent in your noisy apps today. It is computed on the phone and never leaves it.
