@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Shuffled apps widget. Default 4x2 cells, resizable down to 2x2 and up to whatever the launcher
+  allows; the grid shows as many apps as fit and scrolls for the rest. minWidth/minHeight use the
+  pre-Android 12 cell formula (70 * cells - 30 dp). updatePeriodMillis: the system's minimum, 30 min.
+  previewLayout, targetCellWidth/Height and description are Android 12+; older versions use
+  previewImage and minWidth/minHeight instead (hence UnusedAttribute is ignored).
+-->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:description="@string/widget_description"
+    android:initialLayout="@layout/widget_shuffle"
+    android:minWidth="250dp"
+    android:minHeight="110dp"
+    android:minResizeWidth="110dp"
+    android:minResizeHeight="110dp"
+    android:previewImage="@drawable/widget_preview"
+    android:previewLayout="@layout/widget_shuffle_preview"
+    android:resizeMode="horizontal|vertical"
+    android:targetCellWidth="4"
+    android:targetCellHeight="2"
+    android:updatePeriodMillis="1800000"
+    android:widgetCategory="home_screen"
+    tools:ignore="UnusedAttribute" />

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Subtle Glitch mark: the logo's gold tile and a small name. The tile is rotated like the logo's,
+  which a compound drawable cannot do.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="6dp"
+    android:paddingEnd="6dp"
+    android:paddingBottom="2dp"
+    tools:ignore="UseCompoundDrawables">
+
+    <ImageView
+        android:layout_width="8dp"
+        android:layout_height="8dp"
+        android:importantForAccessibility="no"
+        android:rotation="40"
+        android:src="@drawable/widget_mark" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:text="@string/app_name"
+        android:textColor="@color/widget_header"
+        android:textSize="11sp" />
+</LinearLayout>

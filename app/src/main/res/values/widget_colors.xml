@@ -1,0 +1,10 @@
+<resources>
+    <!-- Android 8-11: the logo's navy with its gold tile, in light and dark mode. -->
+    <color name="widget_background">#F2010F3E</color>
+    <color name="widget_label">#FFFFFFFF</color>
+    <color name="widget_header">#FFC9D1E6</color>
+    <color name="widget_accent">#FFEBB64E</color>
+    <color name="widget_ripple">#33FFFFFF</color>
+    <color name="widget_preview_icon">#FF3A4D86</color>
+    <color name="widget_preview_label">#66C9D1E6</color>
+</resources>
