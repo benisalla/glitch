@@ -1,5 +1,9 @@
 package com.benisalla.shufflemenu.menu
 
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import androidx.annotation.StringRes
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -45,10 +49,11 @@ class MenuContentTest {
         darkTheme: Boolean = false,
         onAppClick: (AppEntry) -> Unit = {},
         onRetry: () -> Unit = {},
+        loadIcon: suspend (AppEntry) -> Drawable? = { null },
     ) {
         composeRule.setContent {
             ShuffleMenuTheme(darkTheme = darkTheme) {
-                MenuContent(state = state, loadIcon = { null }, onAppClick = onAppClick, onRetry = onRetry)
+                MenuContent(state = state, loadIcon = loadIcon, onAppClick = onAppClick, onRetry = onRetry)
             }
         }
     }
@@ -71,6 +76,28 @@ class MenuContentTest {
             .performClick()
 
         assertEquals(listOf(apps[1]), clicked)
+    }
+
+    @Test
+    fun ready_brokenIcons_keepMenuAndLabels() {
+        val entries = apps + AppEntry("pkg.c", "pkg.c.Main", "Charlie")
+        // Alpha's loader throws, Bravo's drawable throws while drawing, Charlie's icon is fine.
+        val brokenDrawable = object : ColorDrawable(Color.RED) {
+            override fun draw(canvas: Canvas): Unit = throw IllegalStateException("broken icon")
+        }
+        setContent(MenuUiState.Ready(entries), loadIcon = { entry ->
+            when (entry.packageName) {
+                "pkg.a" -> throw IllegalStateException("broken loader")
+                "pkg.b" -> brokenDrawable
+                else -> ColorDrawable(Color.BLUE)
+            }
+        })
+
+        composeRule.waitForIdle()
+        // The tile node carries the label (the visible Text is merged into it).
+        for (label in listOf("Alpha", "Bravo", "Charlie")) {
+            composeRule.onNodeWithContentDescription(label).assertIsDisplayed().assertHasClickAction()
+        }
     }
 
     @Test
