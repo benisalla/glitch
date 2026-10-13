@@ -1,5 +1,10 @@
 # Glitch v1.1.0 launcher: test plan
 
+> **Obsolete since v1.1.1.** Home-screen mode was removed: Glitch is only a normal app again and
+> has no HOME activity. The home-mode, home-card and "Change home app" cases below no longer
+> apply. The dock and app-mode cases still hold. The smoke script is now `qa/app_smoke.sh`
+> (app mode only); `qa/launcher_smoke.sh` no longer exists.
+
 Scope: the optional home-screen mode (HOME role), the dock, the home-screen card, and the
 existing app mode, which must keep working. Package `com.benisalla.glitch`.
 
