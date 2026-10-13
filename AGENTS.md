@@ -3,7 +3,12 @@
 ## Product scope
 - One purpose: show the installed, launchable apps (icon + label) in a random order, so the user has to look instead of tapping by position. Tapping an app opens it normally.
 - Platform boundary: this is a standalone menu app that the user opens from their existing home screen. It does not modify Samsung One UI's app drawer, is not a home-screen replacement, and must never declare a HOME intent filter or request the HOME role.
-- Non-goals: prompts, blockers, timers, usage tracking, analytics, accounts, backend, ads, AI. Do not claim the app improves focus, memory or intelligence.
+- Vision: Glitch grows into gentle, user-controlled cues for people with ADHD and attention that wanders quickly. See `VISION.md`, `ROADMAP.md` and the research in `product/`.
+- Planned, not yet approved: intention prompts, time cues, usage awareness (see `ROADMAP.md`). Build a roadmap item only after the owner explicitly approves that item, and update this file in the same change.
+- Never: lockouts or blockers you can't escape, streaks, shame-based copy, analytics, accounts, backend, ads, AI.
+- Claims: Glitch is not a medical device. Never claim it treats, fixes or reduces ADHD or any condition, or that it improves focus, memory or intelligence. Allowed outside the store listing: "designed using research on attention, habits and ADHD-friendly design" and descriptions of what the app does. The store listing never mentions ADHD or any condition, and never advertises features that are not shipped yet.
+- Any feature needing AccessibilityService (e.g. the in-app Scroll Glitch) belongs in a separate companion app in its own repository or project, never in this app (not as a module or build flavor either).
+- The Privacy requirements below stay binding until an approved roadmap item changes them in the same PR.
 - Do not expand scope without the owner's explicit approval.
 
 ## Architecture
