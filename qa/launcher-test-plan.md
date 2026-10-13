@@ -55,9 +55,10 @@ grid is scrolled to the top. The dock is never part of the grid.
 | 2.2 | A | `cmd role add-role-holder android.app.role.HOME com.benisalla.glitch`, then `get-role-holders` | Holder is `com.benisalla.glitch` |
 | 2.3 | M | Settings > Apps > Default apps > Home app > Glitch | Glitch selectable; after choosing it, Home shows Glitch |
 | 2.4 | M | Glitch not default: open Glitch from the old launcher | "Make Glitch your home screen" card shown at the top; nothing else changed |
-| 2.5 | M | Tap the card | System role request dialog (or Default home settings) opens; choosing Glitch makes it home; the card disappears on return |
-| 2.6 | M | Tap the card, then cancel the dialog | Glitch stays a normal app; card still shown; no crash, no repeated dialog |
-| 2.7 | M | Glitch is default: find "Change home app" | Opens the system Default home app settings; choosing the previous launcher works |
+| 2.5 | M | Tap "Set as home" on the card | System role request dialog (or Default home settings) opens; choosing Glitch makes it home; the card disappears on return |
+| 2.6 | M | Tap "Set as home", then cancel the dialog | Glitch stays a normal app; card still shown; no crash, no repeated dialog |
+| 2.6b | M | Tap "Not now" on the card; close and reopen Glitch; kill the process and reopen | Card stays hidden; Glitch can still be made home from the long-press menu ("Make Glitch your home screen") |
+| 2.7 | M | Glitch is default: long-press any tile > "Change home app" | Opens the system Default home app settings; choosing the previous launcher works |
 | 2.8 | M | Switch home: Glitch, old launcher, Glitch, old launcher (4 times quickly) | Each switch takes effect on the next Home press; no crash; no duplicate Glitch tasks in Recents; dock unchanged |
 | 2.9 | M | Uninstall Glitch while it is the home app | System falls back to another launcher; the device is never left without a home |
 | 2.10 | M | Reboot with Glitch as home | Glitch is shown after boot (after unlock) with a fresh order; dock unchanged |
@@ -99,10 +100,10 @@ grid is scrolled to the top. The dock is never part of the grid.
 | # | How | Steps | Expected |
 |---|-----|-------|----------|
 | 5.1 | M | Fresh install (`pm clear com.benisalla.glitch`) on a device with phone, messages, camera, browser | Dock: phone, messages, camera, browser, in that order; those 4 are not in the grid |
-| 5.2 | M | Fresh install on the emulator (some defaults may be missing) | Only resolved defaults shown; no empty slots, no crash |
+| 5.2 | A | Fresh install on `shuffle_api35`; `EXPECT_DOCK="Phone \| Messages \| Camera \| Chrome" qa/launcher_smoke.sh` | Dock is Phone, Messages, Camera, Chrome. On a device missing a default: only the resolved defaults, no empty slots, no crash |
 | 5.3 | A | Through all of section 3 | Dock contents and order identical in every snapshot |
 | 5.4 | M | Long-press a grid tile > Add to dock (dock has 3) | App moves to the end of the dock; it disappears from the grid; other grid tiles keep their relative order |
-| 5.5 | M | Dock full (4), long-press a grid tile | "Add to dock" disabled or explains the dock is full; nothing changes |
+| 5.5 | M | Dock full (4), long-press a grid tile > Add to dock | Snackbar "The dock is full. Remove an app from it first."; dock and grid unchanged |
 | 5.6 | M | Long-press a dock tile > Remove from dock | App leaves the dock and appears once in the grid; the other dock tiles keep their order |
 | 5.7 | M | Long-press any tile > App info | System App info page for that app opens |
 | 5.8 | M | Change the dock, then `adb shell am kill com.benisalla.glitch` (with Glitch in the background) and press Home | Dock change kept |
@@ -183,13 +184,20 @@ Exit codes: 0 all PASS, 1 any FAIL, 2 not a launcher build (no HOME filter; laun
 are SKIPped, app-mode checks still run), 3 setup problem (no device, several devices without
 `ANDROID_SERIAL`, Glitch not installed).
 
-How it reads the order: `uiautomator dump`, then every node of `com.benisalla.glitch` with a
-non-empty content-desc is a tile (Compose merges icon and label into one node whose description
-is the label). Tiles are sorted top-to-bottom, left-to-right. Dock tiles are the ones whose
-resource-id contains `DOCK_RID` if set; otherwise the ones outside the scrollable grid; otherwise
-(grid not scrollable) the ones in the bottom `DOCK_ZONE_PCT` (15%) of the window. Only the
-visible part of the grid can be compared, so orders are compared as "the shorter visible list
-is a prefix of the longer one", which handles rotation changing the number of visible tiles.
+How it reads the order: `uiautomator dump`. The v1.1 UI turns on `testTagsAsResourceId`, and
+its tags are `app_tile` (grid tile), `dock_tile` (dock tile), `dock` (dock row) and `home_card`
+(the card). On API 35 the tagged, clickable node has an empty content-desc and the label is on
+its first child, which has the same bounds. So the script takes the label from that child and
+gives it the parent's tag. Only `app_tile` and `dock_tile` nodes count, so the card and its
+buttons are ignored. Tiles are sorted top-to-bottom, left-to-right. On builds without these
+tags (v1.0), any `com.benisalla.glitch` node with a content-desc is a tile. The dock is then
+the tiles outside the scrollable grid, or, if the grid does not scroll, the tiles in the
+bottom `DOCK_ZONE_PCT` (15%) of the window. Only the visible part of the grid can be compared,
+so two orders match when the shorter visible list is a prefix of the longer one. This handles
+rotation changing how many tiles are visible.
+`--parse-file dump.xml` parses a saved dump without a device, for debugging the parser.
+`EXPECT_DOCK="Phone | Messages | Camera | Chrome"` also checks the first-run dock on
+`shuffle_api35` (after `pm clear com.benisalla.glitch`).
 
 About chance: a correct reshuffle can repeat the visible order by luck. For N shuffled apps and
 k visible tiles this happens with probability (N-k)!/N! per attempt (1/19! = 8e-18 on the stock

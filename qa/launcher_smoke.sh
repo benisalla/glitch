@@ -5,6 +5,7 @@
 #   ./gradlew :app:installDebug          # or: adb install -r app/build/outputs/apk/debug/app-debug.apk
 #   qa/launcher_smoke.sh                 # full launcher run
 #   qa/launcher_smoke.sh --parse-only    # just open Glitch and print the parsed dock and grid
+#   qa/launcher_smoke.sh --parse-file dump.xml   # parse a saved uiautomator dump, no device needed
 #
 # Environment (all optional):
 #   ANDROID_SERIAL   device to use when more than one is connected
@@ -12,10 +13,14 @@
 #   ACTIVITY         activity to start in app mode (default .MainActivity)
 #   OTHER_ACTION     intent action for "use another app" (default android.settings.SETTINGS)
 #   SHUFFLE_TRIES    unlock attempts before declaring "no reshuffle" (default 3)
-#   DOCK_RID         substring of the resource-id of dock tiles (needs testTagsAsResourceId)
-#   GRID_RID         substring of the resource-id of grid tiles
-#   DOCK_ZONE_PCT    without DOCK_RID and without a scrollable grid: tiles whose top edge is in
-#                    the bottom N percent of the Glitch window count as dock (default 15)
+#   DOCK_RID         resource-id (testTag) substring of dock tiles (default dock_tile)
+#   GRID_RID         resource-id (testTag) substring of grid tiles (default app_tile)
+#                    When no node carries either tag (builds before v1.1), the dock is found by
+#                    geometry instead: tiles outside the scrollable grid, or, if the grid does
+#                    not scroll, tiles whose top edge is in the bottom DOCK_ZONE_PCT percent of
+#                    the Glitch window (default 15).
+#   EXPECT_DOCK      expected dock labels joined by " | ", checked once on the home screen,
+#                    e.g. "Phone | Messages | Camera | Chrome" for a first run on shuffle_api35
 #   EXCLUDE_DESC     extended regex of content descriptions that are not app tiles
 #   KEEP_DUMPS=1     keep the raw uiautomator XML files in the work directory
 #
@@ -30,17 +35,22 @@ PKG="${PKG:-com.benisalla.glitch}"
 ACTIVITY="${ACTIVITY:-.MainActivity}"
 OTHER_ACTION="${OTHER_ACTION:-android.settings.SETTINGS}"
 SHUFFLE_TRIES="${SHUFFLE_TRIES:-3}"
-DOCK_RID="${DOCK_RID:-}"
-GRID_RID="${GRID_RID:-}"
+DOCK_RID="${DOCK_RID:-dock_tile}"
+GRID_RID="${GRID_RID:-app_tile}"
 DOCK_ZONE_PCT="${DOCK_ZONE_PCT:-15}"
-EXCLUDE_DESC="${EXCLUDE_DESC:-^(Loading apps|Glitch|.*[Hh]ome (screen|app).*)$}"
+EXCLUDE_DESC="${EXCLUDE_DESC:-^(Loading apps|Glitch|Set as home|Not now|.*[Hh]ome (screen|app).*)$}"
+EXPECT_DOCK="${EXPECT_DOCK:-}"
 KEEP_DUMPS="${KEEP_DUMPS:-0}"
 HOME_ROLE="android.app.role.HOME"
 
 PARSE_ONLY=0
+PARSE_FILE=""
 case "${1:-}" in
   --parse-only) PARSE_ONLY=1 ;;
-  -h|--help) sed -n '2,24p' "$0"; exit 0 ;;
+  --parse-file)
+    PARSE_FILE="${2:-}"
+    if [ ! -r "$PARSE_FILE" ]; then echo "usage: $0 --parse-file <uiautomator dump .xml>" >&2; exit 3; fi ;;
+  -h|--help) awk 'NR > 1 && /^#/ { sub(/^# ?/, ""); print; next } NR > 1 { exit }' "$0"; exit 0 ;;
   "") ;;
   *) echo "unknown argument: $1" >&2; exit 3 ;;
 esac
@@ -197,21 +207,32 @@ parse_dump() {
       if (attr($0, "scrollable") == "true" && (r - l) * (btm - t) > sarea) {
         sarea = (r - l) * (btm - t); sL = l; sT = t; sR = r; sB = btm
       }
+      bk = l "," t "," r "," btm
+      rid = attr($0, "resource-id")
+      # On API 35 the tagged (clickable) node has an empty content-desc and the label sits on
+      # its first child with the same bounds, so that child inherits the tag of its parent.
+      if (rid != "" && ((gridrid != "" && index(rid, gridrid)) || (dockrid != "" && index(rid, dockrid)))) {
+        tagged = 1; ridAt[bk] = rid
+      }
+      if (rid == "" && (bk in ridAt)) rid = ridAt[bk]
       d = unesc(attr($0, "content-desc"))
       if (d == "" || d ~ exclude) next
-      key = l "," t "," r "," btm "," d
+      key = bk "," d
       if (key in seen) next
       seen[key] = 1
-      n++; L[n] = l; T[n] = t; R[n] = r; B[n] = btm; D[n] = d; RID[n] = attr($0, "resource-id")
+      n++; L[n] = l; T[n] = t; R[n] = r; B[n] = btm; D[n] = d; RID[n] = rid
     }
     END {
-      rule = (dockrid != "") ? "resource-id~" dockrid : (sarea > 0 ? "outside-scrollable" : "bottom-" zone "pct")
+      rule = tagged ? "resource-id " gridrid "/" dockrid : (sarea > 0 ? "outside-scrollable" : "bottom-" zone "pct")
       for (i = 1; i <= n; i++) {
         cx = (L[i] + R[i]) / 2; cy = (T[i] + B[i]) / 2
-        if (dockrid != "") isdock = index(RID[i], dockrid) > 0
+        if (tagged) {
+          # Tagged UI: only tagged tiles count; anything else (card, menus) is ignored.
+          isdock = (dockrid != "" && index(RID[i], dockrid) > 0)
+          if (!isdock && !(gridrid != "" && index(RID[i], gridrid) > 0)) continue
+        }
         else if (sarea > 0) isdock = (cx < sL || cx > sR || cy < sT || cy > sB)
         else isdock = (T[i] >= winB * (100 - zone) / 100)
-        if (!isdock && gridrid != "" && index(RID[i], gridrid) == 0) continue
         # sort key: top, then left (zero padded) so sort -n is not needed
         line = sprintf("%06d %06d\t%s", T[i], L[i], D[i])
         if (isdock) { nd++; DK[nd] = line } else { ng++; GK[ng] = line }
@@ -333,6 +354,16 @@ rotate_to() { # $1 = 0..3
   sleep 3
 }
 
+# ---------------------------------------------------------------- offline parse
+if [ -n "$PARSE_FILE" ]; then
+  cp "$PARSE_FILE" "$WORK/file.xml"
+  parse_dump file
+  log "[file] rotation=$(meta file rotation) scrollable=$(meta file scrollable) dock-rule=$(meta file dockrule)"
+  log "[file] dock ($(wc -l < "$WORK/file.dock")): $(joined "$WORK/file.dock")"
+  log "[file] grid ($(wc -l < "$WORK/file.grid")): $(joined "$WORK/file.grid")"
+  exit 0
+fi
+
 # ---------------------------------------------------------------- preflight
 info "Preflight"
 command -v adb > /dev/null || { echo "adb not found on PATH" >&2; exit 3; }
@@ -398,6 +429,10 @@ if [ "$LAUNCHER_BUILD" = 1 ]; then
   nd="$(wc -l < "$WORK/home0.dock")"
   if [ "$nd" -ge 1 ] && [ "$nd" -le 4 ]; then pass "dock has 1..4 apps ($nd)"
   else fail "dock has 1..4 apps" "found $nd (dock rule: $(meta home0 dockrule); set DOCK_RID if the heuristic is wrong)"; fi
+  if [ -n "$EXPECT_DOCK" ]; then
+    if [ "$(joined "$WORK/home0.dock")" = "$EXPECT_DOCK" ]; then pass "dock is: $EXPECT_DOCK"
+    else fail "dock is: $EXPECT_DOCK" "found: $(joined "$WORK/home0.dock")"; fi
+  fi
   overlap="$(grep -Fxf "$WORK/home0.dock" "$WORK/home0.grid" || true)"
   if [ -z "$overlap" ]; then pass "dock apps are not in the grid"
   else fail "dock apps are not in the grid" "in both: $(printf '%s' "$overlap" | tr '\n' ',')"; fi
