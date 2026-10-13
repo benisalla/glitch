@@ -1,0 +1,53 @@
+Your apps, in a new order every time you open the menu.
+
+Shuffle Menu shows the apps on your phone with their usual icons and names, in a random order. Each time you open it, the order is new. So instead of tapping a spot from memory, you look at the list and choose. A small change to a moment you repeat many times a day.
+
+How it works
+1. Open Shuffle Menu from your home screen.
+2. Your apps appear in a fresh, shuffled order.
+3. Look, then tap. The app opens just like it always does.
+
+Come back to the menu and the order changes again.
+
+Why shuffle?
+Most of us open apps by position. The thumb knows where an icon lives and taps before we have really decided. That is handy, and it is also a habit that runs on its own.
+
+Shuffle Menu gently breaks that pattern. When the icons are never in the same place twice, you read the names and pick the app you actually came for. It takes a second, and that second is yours.
+
+Steady while you look
+• The order stays put while the menu is on screen. It does not jump around, even when you rotate the phone.
+• Install or remove an app while the menu is open, and only that app is added or removed. Everything else stays where it was.
+• Light and dark themes follow your system setting.
+
+Private by design
+• No permissions requested.
+• No internet access, so nothing can leave your phone.
+• No ads, no analytics, no tracking, no accounts.
+• Your app list is read on your phone to draw the menu, and stays there.
+• It only sees apps that show up in a launcher, not every package on your device.
+
+What it doesn't do
+• It does not replace your home screen or your app drawer. Both keep working exactly as before.
+• No reminders, blockers, timers or usage statistics.
+• It does not lock, hide or limit any app. It only changes the order of the list.
+
+FAQ
+Does it replace my home screen?
+No. Shuffle Menu is a normal app you open when you want it. Your home screen and app drawer stay the same.
+
+How do I keep it handy?
+Long-press Shuffle Menu in your app drawer and add it to your home screen.
+
+Does the order change while I'm looking at it?
+No. You get one new order each time you open the menu. It stays the same until you leave and come back.
+
+Why does it need no permissions?
+Android lets an app see the apps that appear in a launcher without any special permission. That is all Shuffle Menu needs.
+
+Are all my apps listed?
+Every app you can open from your app drawer is listed. Apps inside a work profile or a private or secure folder are not shown.
+
+Does it cost anything?
+No. There are no ads and no in-app purchases.
+
+Simple, quiet and private. Open it, look, then tap.
