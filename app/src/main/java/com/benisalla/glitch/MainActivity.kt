@@ -52,6 +52,9 @@ class MainActivity : ComponentActivity() {
     /** Bumped when Home is pressed while already on Glitch's home screen; the grid scrolls to the top. */
     private var scrollToTopSignal by mutableIntStateOf(0)
 
+    /** True from onStop until the next onResume: the menu has been hidden and a new session has begun. */
+    private var stoppedSinceResume = false
+
     /** As the home screen there is nothing to go back to, so Back does nothing. */
     private val swallowBackOnHome = object : OnBackPressedCallback(false) {
         override fun handleOnBackPressed() = Unit
@@ -109,22 +112,32 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        stoppedSinceResume = false
         // The user may have changed the default home in a dialog or in Settings.
         updateDefaultHome()
     }
 
     override fun onStop() {
+        stoppedSinceResume = true
         viewModel.onMenuStopped(changingConfigurations = isChangingConfigurations)
         super.onStop()
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        // Same check as AOSP Launcher3: focused and not brought to front means Home was pressed
-        // while the user was already looking at the home screen (not returning from an app).
-        val alreadyOnHome = hasWindowFocus() &&
-            (intent.flags and Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) == 0
-        if (isHomeIntent(intent) && alreadyOnHome) scrollToTopSignal++
+        // Whether the user was looking at Glitch when this intent arrived.
+        val focused = hasWindowFocus()
+        if (isHomeIntent(intent)) {
+            // Same check as AOSP Launcher3: focused and not brought to front means Home was pressed
+            // while the user was already looking at the home screen (not returning from an app).
+            val alreadyOnHome = focused && (intent.flags and Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) == 0
+            if (alreadyOnHome) scrollToTopSignal++
+        } else if (!focused && !stoppedSinceResume) {
+            // Launched again while covered by another app, before onStop arrived (it can lag on a
+            // busy device). If onStop did arrive, onStart already began the new session.
+            updateDefaultHome()
+            viewModel.onMenuReopenedBeforeStop()
+        }
     }
 
     private fun updateDefaultHome() {

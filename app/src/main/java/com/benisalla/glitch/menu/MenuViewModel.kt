@@ -115,6 +115,17 @@ class MenuViewModel(
         if (!changingConfigurations) sessionActive = false
     }
 
+    /**
+     * Call when Glitch is launched again while it was covered by another app but not yet stopped
+     * (see [ReshufflePolicy.shuffleOnReopenBeforeStop]). Call [setDefaultHome] first.
+     */
+    fun onMenuReopenedBeforeStop() {
+        if (!ReshufflePolicy.shuffleOnReopenBeforeStop(_isDefaultHome.value)) return
+        needsShuffle = true
+        _state.value = MenuUiState.Loading
+        refresh()
+    }
+
     /** The screen turned off. As the home screen, draw the next order now, ready for the unlock. */
     fun onScreenOff() {
         if (!ReshufflePolicy.shuffleOnScreenOff(_isDefaultHome.value)) return

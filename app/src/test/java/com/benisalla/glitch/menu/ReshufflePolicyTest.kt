@@ -37,4 +37,10 @@ class ReshufflePolicyTest {
         assertTrue(ReshufflePolicy.shuffleOnScreenOff(isDefaultHome = true))
         assertFalse(ReshufflePolicy.shuffleOnScreenOff(isDefaultHome = false))
     }
+
+    @Test
+    fun reopenBeforeStop_shufflesOnlyAsNormalApp() {
+        assertTrue(ReshufflePolicy.shuffleOnReopenBeforeStop(isDefaultHome = false))
+        assertFalse(ReshufflePolicy.shuffleOnReopenBeforeStop(isDefaultHome = true))
+    }
 }

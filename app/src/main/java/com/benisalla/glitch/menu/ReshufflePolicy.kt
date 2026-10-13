@@ -23,4 +23,11 @@ object ReshufflePolicy {
      * session, so only the home screen shuffles here.
      */
     fun shuffleOnScreenOff(isDefaultHome: Boolean): Boolean = isDefaultHome
+
+    /**
+     * Glitch was launched again (from its icon or another app) while it was covered but Android had
+     * not yet delivered onStop, which can lag on a busy device. As a normal app that is a newly
+     * opened menu, so it gets a new order; as the home screen it is a return Home, which keeps it.
+     */
+    fun shuffleOnReopenBeforeStop(isDefaultHome: Boolean): Boolean = !isDefaultHome
 }

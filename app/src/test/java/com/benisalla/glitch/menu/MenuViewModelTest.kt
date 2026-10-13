@@ -6,7 +6,9 @@ import com.benisalla.glitch.model.AppEntry
 import com.benisalla.glitch.model.AppLauncher
 import com.benisalla.glitch.model.LaunchResult
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -462,5 +464,82 @@ class MenuViewModelTest {
         vm.dismissHomeCard()
         assertEquals(true, vm.homeCardDismissed.value)
         assertEquals(true, viewModel().homeCardDismissed.value)
+    }
+
+    // --- Home role changes and reopen before stop ---
+
+    @Test
+    fun homeRoleRemovedWhileStopped_nextStartUsesAppModeAndShuffles() = runTest {
+        // Regression: the role is handed to another launcher while Glitch is in the background;
+        // MainActivity re-checks it in onStart before onMenuStarted, so app-mode rules apply.
+        val vm = viewModel()
+        vm.startAsHome()
+        vm.onMenuStopped(changingConfigurations = false)
+
+        vm.setDefaultHome(false)
+        vm.onMenuStarted()
+
+        assertEquals(2 * drawsPerShuffle, random.calls)
+        assertEquals(apps.toSet(), vm.readyApps().toSet())
+    }
+
+    @Test
+    fun homeRoleGainedWhileStopped_nextStartKeepsOrder() = runTest {
+        val vm = viewModel()
+        vm.onMenuStarted()
+        val before = vm.readyApps()
+        vm.onMenuStopped(changingConfigurations = false)
+
+        vm.startAsHome()
+
+        assertEquals(before, vm.readyApps())
+        assertEquals(drawsPerShuffle, random.calls)
+    }
+
+    @Test
+    fun appMode_reopenBeforeStop_startsNewSessionWithOneShuffle() = runTest {
+        val vm = viewModel()
+        vm.onMenuStarted()
+        val firstId = vm.ready().shuffleId
+
+        // Covered by another app, launched again before onStop: no stop/start pair at all.
+        vm.onMenuReopenedBeforeStop()
+
+        assertEquals(2 * drawsPerShuffle, random.calls)
+        assertEquals(apps.toSet(), vm.readyApps().toSet())
+        assertTrue(vm.ready().shuffleId != firstId)
+        assertEquals(2, catalog.loadCount)
+    }
+
+    @Test
+    fun home_reopenBeforeStop_keepsOrder() = runTest {
+        val vm = viewModel()
+        vm.startAsHome()
+        val before = vm.readyApps()
+        vm.onMenuReopenedBeforeStop()
+        assertEquals(before, vm.readyApps())
+        assertEquals(drawsPerShuffle, random.calls)
+        assertEquals(1, catalog.loadCount)
+    }
+
+    @Test
+    fun firstRun_firstReadyStateAlreadyHasTheResolvedDock() = runTest {
+        store.dock = null
+        val resolved = CompletableDeferred<List<List<DefaultApp>>>()
+        val vm = MenuViewModel(catalog, launcher, store, random, defaultDockApps = { resolved.await() })
+        val states = mutableListOf<MenuUiState>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.state.collect { states += it } }
+
+        vm.onMenuStarted()
+        // The catalog is loaded but the default apps are still resolving: nothing is shown yet,
+        // so dock apps can never appear in the grid first and then jump into the dock.
+        assertEquals(listOf<MenuUiState>(MenuUiState.Loading), states)
+
+        resolved.complete(listOf(listOf(DefaultApp("pkg.1")), listOf(DefaultApp("pkg.2"))))
+
+        val ready = states.filterIsInstance<MenuUiState.Ready>()
+        assertEquals(1, ready.size)
+        assertEquals(listOf(apps[0], apps[1]), ready.first().dock)
+        assertTrue(ready.first().apps.none { it in ready.first().dock })
     }
 }
