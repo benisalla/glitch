@@ -1,0 +1,26 @@
+Shuffle App Menu shows the apps installed on your phone in a random order. Every time you open it, the order is new, so you read the list to find what you want instead of tapping a spot from habit.
+
+HOW IT WORKS
+• Open Shuffle Menu from your home screen or app drawer.
+• Your apps appear with their usual icon and name, in a shuffled order.
+• Tap an app to open it, exactly as you normally would.
+• Come back to the menu and you get a fresh order.
+
+WHAT STAYS THE SAME
+• The order does not jump around while you are looking at it. Rotating the phone keeps the same order.
+• If you install or remove an app while the menu is open, that app is added or removed and everything else stays where it was.
+
+WHAT IT IS NOT
+• It is a separate app, not a home-screen (launcher) replacement. Your phone's home screen and app drawer keep working as before.
+• It has no reminders, blockers, timers, usage tracking or accounts.
+• It makes no claims about focus, memory or productivity. It only changes the order of the list.
+
+PRIVACY
+• No permissions requested. No internet access.
+• No ads, no analytics, no tracking, no accounts.
+• The list of your apps is read on your phone and never leaves it.
+• To find apps it can open, it uses Android's narrow "launcher apps" visibility, not access to every package on the device.
+
+GOOD TO KNOW
+• Apps in a work profile or in Samsung Secure Folder are not listed.
+• Tip: long-press Shuffle Menu in your app drawer and add it to your home screen for quick access.

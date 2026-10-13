@@ -1,0 +1,5 @@
+First release (1.0.0).
+• Shows your launchable apps in a random order each time you open the menu.
+• The order stays put while the menu is on screen, including on rotation.
+• Installing or removing an app updates the list without reshuffling the rest.
+• No permissions, no internet, no tracking.
