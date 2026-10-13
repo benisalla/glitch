@@ -2,7 +2,7 @@
 
 **Glitch the autopilot. Look, then tap.**
 
-Your phone is designed to be tapped without thinking. The thumb knows where every icon lives, and one unlock to check the time turns into forty minutes of scrolling. Glitch is a small, kind interruption in that loop. Today it shows your apps in a new order every time you open it, so you look before you choose. Next, it grows into a set of gentle cues you set up yourself.
+Your phone is designed to be tapped without thinking. The thumb knows where every icon lives, and one unlock to check the time turns into forty minutes of scrolling. Glitch is a small, kind interruption in that loop. Today it shows your apps in a new order, so you look before you choose. If you like, Glitch can be your home screen: your apps reshuffle every time you unlock the phone, with a few everyday apps kept steady in a dock. It's optional, and you can switch back at any time. Next, it grows into a set of gentle cues you set up yourself.
 
 Glitch is designed using research on attention, habits and ADHD-friendly design, for people with ADHD and anyone whose attention wanders quickly. That shapes every decision:
 
@@ -19,8 +19,8 @@ The long-term goal is the **Scroll Glitch**. When you've slipped into endless sh
 We are getting there in steps, so trust comes before permissions:
 
 ```
-shuffle  →  intention moment  →  gentle time cues  →  Scroll Glitch
- (today)       (v1.1)               (v1.2–v2.0)        (future add-on)
+shuffle  →  home screen  →  intention moment  →  gentle time cues  →  Scroll Glitch
+ (v1.0)      (v1.1, now)       (v1.2)            (v1.3–v2.0)        (future add-on)
 ```
 
 See [ROADMAP.md](ROADMAP.md) for the plan, and [`product/`](product/) for the research behind it.

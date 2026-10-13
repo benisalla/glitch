@@ -10,7 +10,7 @@ Pushing a tag like `v1.0.1` runs `.github/workflows/release.yml`. It runs the sa
 | `glitch-<version>-mapping.txt` | R8 mapping, to read obfuscated crash stack traces |
 | `SHA256SUMS.txt` | SHA-256 checksums of the files above |
 
-The release notes are `store/fastlane/metadata/android/en-US/changelogs/default.txt` plus install instructions.
+The release notes are `store/fastlane/metadata/android/en-US/changelogs/<versionCode>.txt` (for example `2.txt` for versionCode 2) plus install instructions. `default.txt` is only a fallback when that file is missing.
 
 A version with a suffix, such as `1.1.0-beta.1`, is published as a pre-release, so the always-latest link skips it.
 
@@ -45,7 +45,7 @@ If any secret is missing, the release fails with a message naming it. It never p
 ## Each release
 
 1. In `app/build.gradle.kts`, increase `versionCode` by 1 and set `versionName` (for example `1.0.1`).
-2. Update `store/fastlane/metadata/android/en-US/changelogs/default.txt` with what changed. Use a few short lines in plain language, because this text becomes the release notes.
+2. Add `store/fastlane/metadata/android/en-US/changelogs/<versionCode>.txt` (the new versionCode, max 500 characters) with what changed. F-Droid reads the same file. Use a few short lines in plain language, because this text becomes the release notes.
 3. Merge these changes to `main` through a pull request, as usual.
 4. Tag the merged commit on `main` and push the tag:
    ```sh

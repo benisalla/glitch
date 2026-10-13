@@ -8,26 +8,33 @@ This is a plan, not a promise of dates. Each item is built only after the owner 
 
 Evidence ratings come from the research review: **moderate** means supported by field or lab studies in the general population; **weak** means inferred and not yet tested in this form. No feature has been tested with people with ADHD, and none of them treats ADHD.
 
-## v1.0: Shuffle (today)
+## v1.0: Shuffle (shipped)
 - Your apps in a new random order every time you open Glitch.
 - Light and dark themes, no permissions, no internet, no tracking.
 
-## v1.1: Intention moment (no new permissions)
-Why now: these features make the shuffle easier to live with and add the first gentle cue, without giving up "Permissions: none".
+## v1.1: Glitch as your home screen (current release, no new permissions)
+Approved by the owner on 2026-10-13. Android only lets an app control where your apps appear if it is the home screen, so Glitch can now be one, if you choose.
+- **Optional home screen:** set Glitch as your home app from the "Make Glitch your home screen" card or in Settings (on Samsung: Settings → Apps → Choose default apps → Home app). "Change home app" takes you back at any time. Glitch still works as a normal app too.
+- **Shuffle on unlock:** as your home screen, Glitch reshuffles each time you unlock the phone. The order stays steady while you use the phone; going back to Home does not reshuffle.
+- **Fixed dock:** up to 4 apps (defaults: phone, messages, camera, browser) keep a fixed spot and are left out of the shuffle. Long-press an app to add it to or remove it from the dock, or to open App info. This replaces the earlier "anchor apps" idea.
+- Not in this version: widgets, wallpaper, search.
+- Still no permissions, no internet, no tracking.
+
+## v1.2: Intention moment (no new permissions)
+Why next: these features make the shuffle easier to live with and add the first gentle cue, without giving up "Permissions: none".
 
 | Feature | What it does | Evidence |
 |---|---|---|
 | Mark as noisy | Mark the apps that pull you in. Their tiles turn calm grayscale in Glitch. | Weak |
 | "Still want this?" pause | Before a noisy app opens from Glitch: a big **Close** button and **Open anyway**. Never a lockout. | Moderate |
 | Your own if-then plans | Write lines like "If I open Instagram, then I first reply to Sara". One is shown on the pause, and they rotate. | Moderate (if-then plans); weak (in a pause) |
-| Anchor apps | Up to 4 essentials (phone, maps) keep a fixed spot; everything else shuffles. Changes the core shuffle, so it needs an AGENTS.md update. | Weak |
 | Focus sets | One tap to show only a chosen set, e.g. *Study* or *Evening*. | Weak |
 | "Away time" card | Coming back to Glitch shows "You left 23 min ago for YouTube". Only from Glitch's own launches. | Weak |
 | Glitch shortcuts | Put "Instagram via Glitch" on your home screen so the pause also works from there. | Feasibility-checked |
 
-## v1.2: Gentle cues (one optional permission: notifications)
+## v1.3: Gentle cues (one optional permission: notifications)
 - **Kind time cue:** one notification a while after you open a noisy app from Glitch, showing your own reason. At most one per launch. Off by default.
-- **Focus widget and Quick Settings tile:** start a focus set from the home screen.
+- **Focus widget and Quick Settings tile:** start a focus set from the home screen (for people who keep another home app).
 
 ## v2.0: Time awareness (opt-in: usage access, a foreground service and notifications)
 - See time spent in your noisy apps today. It is computed on the phone and never leaves it.

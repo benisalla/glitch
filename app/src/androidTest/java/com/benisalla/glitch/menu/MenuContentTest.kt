@@ -15,10 +15,16 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.isHeading
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.longClick
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -50,12 +56,35 @@ class MenuContentTest {
         onAppClick: (AppEntry) -> Unit = {},
         onRetry: () -> Unit = {},
         loadIcon: suspend (AppEntry) -> Drawable? = { null },
+        isDefaultHome: Boolean = false,
+        showHomeCard: Boolean = false,
+        actions: MenuActions = MenuActions(),
     ) {
         composeRule.setContent {
             GlitchTheme(darkTheme = darkTheme) {
-                MenuContent(state = state, loadIcon = loadIcon, onAppClick = onAppClick, onRetry = onRetry)
+                MenuContent(
+                    state = state,
+                    loadIcon = loadIcon,
+                    onAppClick = onAppClick,
+                    onRetry = onRetry,
+                    isDefaultHome = isDefaultHome,
+                    showHomeCard = showHomeCard,
+                    actions = actions,
+                )
             }
         }
+    }
+
+    private val dockApps = listOf(
+        AppEntry("pkg.p", "pkg.p.Main", "Phone"),
+        AppEntry("pkg.m", "pkg.m.Main", "Messages"),
+    )
+
+    private fun inDock(label: String) = hasContentDescription(label) and hasAnyAncestor(hasTestTag(MenuTags.DOCK))
+
+    private fun longPress(label: String) {
+        composeRule.onNodeWithContentDescription(label).performTouchInput { longClick() }
+        composeRule.waitForIdle()
     }
 
     @Test
@@ -147,5 +176,213 @@ class MenuContentTest {
         composeRule.onNodeWithText(string(R.string.menu_retry)).assertHasClickAction().performClick()
 
         assertEquals(1, retries)
+    }
+
+    // --- Dock ---
+
+    @Test
+    fun dock_rendersDockAppsBelowGridInGivenOrder() {
+        setContent(MenuUiState.Ready(apps = apps, dock = dockApps))
+
+        composeRule.onNodeWithTag(MenuTags.DOCK).assertIsDisplayed()
+        composeRule.onNode(inDock("Phone")).assertIsDisplayed().assertHasClickAction()
+        composeRule.onNode(inDock("Messages")).assertIsDisplayed()
+        // Grid apps are not in the dock.
+        composeRule.onNode(inDock("Alpha")).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription("Alpha").assertIsDisplayed()
+
+        val phone = composeRule.onNode(inDock("Phone")).getUnclippedBoundsInRoot()
+        val messages = composeRule.onNode(inDock("Messages")).getUnclippedBoundsInRoot()
+        val alpha = composeRule.onNodeWithContentDescription("Alpha").getUnclippedBoundsInRoot()
+        assertEquals(phone.top, messages.top)
+        assertTrue("dock keeps its order", phone.left < messages.left)
+        assertTrue("dock is below the grid", phone.top > alpha.bottom)
+    }
+
+    @Test
+    fun dock_clickLaunchesExactEntry() {
+        val clicked = mutableListOf<AppEntry>()
+        setContent(MenuUiState.Ready(apps = apps, dock = dockApps), onAppClick = { clicked += it })
+        composeRule.onNode(inDock("Messages")).performClick()
+        assertEquals(listOf(dockApps[1]), clicked)
+    }
+
+    @Test
+    fun dock_hiddenWhenEmpty() {
+        setContent(MenuUiState.Ready(apps = apps))
+        composeRule.onNodeWithTag(MenuTags.DOCK).assertDoesNotExist()
+    }
+
+    // --- Long-press menu ---
+
+    @Test
+    fun longPressGridTile_addToDockPassesEntry() {
+        val added = mutableListOf<AppEntry>()
+        setContent(MenuUiState.Ready(apps = apps), actions = MenuActions(onAddToDock = { added += it }))
+
+        longPress("Bravo")
+        composeRule.onNodeWithText(string(R.string.menu_remove_from_dock)).assertDoesNotExist()
+        composeRule.onNodeWithText(string(R.string.menu_add_to_dock)).assertIsDisplayed().performClick()
+
+        assertEquals(listOf(apps[1]), added)
+        composeRule.onNodeWithText(string(R.string.menu_add_to_dock)).assertDoesNotExist()
+    }
+
+    @Test
+    fun longPressDockTile_removeFromDockPassesEntry() {
+        val removed = mutableListOf<AppEntry>()
+        setContent(
+            MenuUiState.Ready(apps = apps, dock = dockApps),
+            actions = MenuActions(onRemoveFromDock = { removed += it }),
+        )
+
+        composeRule.onNode(inDock("Phone")).performTouchInput { longClick() }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(string(R.string.menu_add_to_dock)).assertDoesNotExist()
+        composeRule.onNodeWithText(string(R.string.menu_remove_from_dock)).performClick()
+
+        assertEquals(listOf(dockApps[0]), removed)
+    }
+
+    @Test
+    fun longPress_appInfoPassesEntry() {
+        val info = mutableListOf<AppEntry>()
+        setContent(MenuUiState.Ready(apps = apps), actions = MenuActions(onAppInfo = { info += it }))
+        longPress("Alpha")
+        composeRule.onNodeWithText(string(R.string.menu_app_info)).performClick()
+        assertEquals(listOf(apps[0]), info)
+    }
+
+    @Test
+    fun longPress_tileHasLongClickLabel() {
+        setContent(MenuUiState.Ready(apps = apps))
+        val hasLongClick = SemanticsMatcher("has long-click action") {
+            it.config.getOrElseNullable(androidx.compose.ui.semantics.SemanticsActions.OnLongClick) { null }?.label ==
+                string(R.string.menu_more_options)
+        }
+        composeRule.onNodeWithContentDescription("Alpha").assert(hasLongClick)
+    }
+
+    @Test
+    fun longPress_asHome_offersChangeHomeApp() {
+        var changes = 0
+        setContent(MenuUiState.Ready(apps = apps), isDefaultHome = true, actions = MenuActions(onChangeHome = { changes++ }))
+        longPress("Alpha")
+        composeRule.onNodeWithText(string(R.string.home_card_title)).assertDoesNotExist()
+        composeRule.onNodeWithText(string(R.string.menu_change_home)).performClick()
+        assertEquals(1, changes)
+    }
+
+    @Test
+    fun longPress_notHome_offersMakeHome() {
+        var requests = 0
+        setContent(MenuUiState.Ready(apps = apps), actions = MenuActions(onMakeHome = { requests++ }))
+        longPress("Alpha")
+        composeRule.onNodeWithText(string(R.string.menu_change_home)).assertDoesNotExist()
+        composeRule.onNodeWithText(string(R.string.home_card_title)).performClick()
+        assertEquals(1, requests)
+    }
+
+    // --- Home card ---
+
+    @Test
+    fun homeCard_shownWithActions() {
+        var requests = 0
+        var dismissals = 0
+        setContent(
+            MenuUiState.Ready(apps = apps),
+            showHomeCard = true,
+            actions = MenuActions(onMakeHome = { requests++ }, onDismissHomeCard = { dismissals++ }),
+        )
+        composeRule.onNodeWithTag(MenuTags.HOME_CARD).assertIsDisplayed()
+        composeRule.onNodeWithText(string(R.string.home_card_title)).assertIsDisplayed()
+        composeRule.onNodeWithText(string(R.string.home_card_action)).performClick()
+        composeRule.onNodeWithText(string(R.string.home_card_dismiss)).performClick()
+        assertEquals(1, requests)
+        assertEquals(1, dismissals)
+    }
+
+    @Test
+    fun homeCard_hiddenByDefault() {
+        setContent(MenuUiState.Ready(apps = apps))
+        composeRule.onNodeWithTag(MenuTags.HOME_CARD).assertDoesNotExist()
+    }
+
+    // --- Header More options (⋮) menu ---
+
+    private fun openHeaderMenu() {
+        composeRule.onNodeWithTag(MenuTags.HEADER_MENU)
+            .assertIsDisplayed()
+            .assertHasClickAction()
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.ContentDescription, listOf(string(R.string.menu_more_options))))
+            .performClick()
+        composeRule.waitForIdle()
+    }
+
+    private fun assertHeaderMenuOffersChangeHome(state: MenuUiState) {
+        var changes = 0
+        setContent(state, isDefaultHome = true, actions = MenuActions(onChangeHome = { changes++ }))
+        openHeaderMenu()
+        composeRule.onNodeWithText(string(R.string.home_card_title)).assertDoesNotExist()
+        composeRule.onNodeWithText(string(R.string.menu_change_home)).assertIsDisplayed().performClick()
+        assertEquals(1, changes)
+        composeRule.onNodeWithText(string(R.string.menu_change_home)).assertDoesNotExist()
+    }
+
+    private fun assertHeaderMenuOffersMakeHome(state: MenuUiState) {
+        var requests = 0
+        setContent(state, isDefaultHome = false, actions = MenuActions(onMakeHome = { requests++ }))
+        openHeaderMenu()
+        composeRule.onNodeWithText(string(R.string.menu_change_home)).assertDoesNotExist()
+        composeRule.onNodeWithText(string(R.string.home_card_title)).assertIsDisplayed().performClick()
+        assertEquals(1, requests)
+    }
+
+    @Test
+    fun headerMenu_ready_asHome_changeHomeApp() = assertHeaderMenuOffersChangeHome(MenuUiState.Ready(apps))
+
+    @Test
+    fun headerMenu_ready_notHome_makeHome() = assertHeaderMenuOffersMakeHome(MenuUiState.Ready(apps))
+
+    @Test
+    fun headerMenu_empty_asHome_changeHomeApp() {
+        assertHeaderMenuOffersChangeHome(MenuUiState.Empty)
+        composeRule.onNodeWithText(string(R.string.menu_empty)).assertIsDisplayed()
+    }
+
+    @Test
+    fun headerMenu_empty_notHome_makeHome() = assertHeaderMenuOffersMakeHome(MenuUiState.Empty)
+
+    @Test
+    fun headerMenu_error_asHome_changeHomeAppAndRetryStillWork() {
+        var retries = 0
+        var changes = 0
+        setContent(MenuUiState.Error, isDefaultHome = true, onRetry = { retries++ }, actions = MenuActions(onChangeHome = { changes++ }))
+        composeRule.onNodeWithText(string(R.string.menu_retry)).performClick()
+        openHeaderMenu()
+        composeRule.onNodeWithText(string(R.string.menu_change_home)).performClick()
+        assertEquals(1, retries)
+        assertEquals(1, changes)
+    }
+
+    @Test
+    fun headerMenu_error_notHome_makeHome() = assertHeaderMenuOffersMakeHome(MenuUiState.Error)
+
+    @Test
+    fun headerMenu_emptyAndError_showTitleHeading() {
+        setContent(MenuUiState.Empty)
+        composeRule.onNodeWithText(string(R.string.app_name)).assertIsDisplayed().assert(isHeading())
+    }
+
+    @Test
+    fun headerMenu_notShownWhileLoading() {
+        setContent(MenuUiState.Loading)
+        composeRule.onNodeWithTag(MenuTags.HEADER_MENU).assertDoesNotExist()
+    }
+
+    @Test
+    fun headerMenu_meetsMinimumTouchTarget() {
+        setContent(MenuUiState.Ready(apps))
+        composeRule.onNodeWithTag(MenuTags.HEADER_MENU).assertWidthIsAtLeast(48.dp).assertHeightIsAtLeast(48.dp)
     }
 }
