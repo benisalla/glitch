@@ -51,16 +51,11 @@ class MenuViewModelTest {
     }
 
     private class FakeStore(var dock: List<String>? = null) : MenuStore {
-        var homeCardDismissed = false
         val savedDocks = mutableListOf<List<String>>()
         override fun loadDock(): List<String>? = dock
         override fun saveDock(keys: List<String>) {
             dock = keys
             savedDocks += keys
-        }
-        override fun isHomeCardDismissed(): Boolean = homeCardDismissed
-        override fun dismissHomeCard() {
-            homeCardDismissed = true
         }
     }
 
@@ -112,12 +107,6 @@ class MenuViewModelTest {
 
     /** One full shuffle of the catalog costs apps.size - 1 bounded draws. */
     private val drawsPerShuffle get() = apps.size - 1
-
-    /** Glitch is the default home: setDefaultHome comes before onMenuStarted, as in MainActivity. */
-    private fun MenuViewModel.startAsHome() {
-        setDefaultHome(true)
-        onMenuStarted()
-    }
 
     @Test
     fun initialStateIsLoading() {
@@ -277,107 +266,6 @@ class MenuViewModelTest {
         assertEquals(1, catalog.loadCount)
     }
 
-    // --- Home screen: reshuffle per unlock (screen off), not per return from an app ---
-
-    @Test
-    fun home_returnFromApp_keepsOrderAndDoesNotShuffle() = runTest {
-        val vm = viewModel()
-        vm.startAsHome()
-        val before = vm.readyApps()
-        vm.launch(before[0])
-
-        vm.onMenuStopped(changingConfigurations = false)
-        vm.startAsHome()
-
-        assertEquals(before, vm.readyApps())
-        assertEquals(drawsPerShuffle, random.calls)
-        assertEquals("start still reloads to pick up app changes", 2, catalog.loadCount)
-    }
-
-    @Test
-    fun home_screenOff_shufflesOnceAndNextShowKeepsThatOrder() = runTest {
-        val vm = viewModel()
-        vm.startAsHome()
-        val firstId = vm.ready().shuffleId
-
-        vm.onMenuStopped(changingConfigurations = false)
-        vm.onScreenOff()
-        val atScreenOff = vm.readyApps()
-        assertEquals(2 * drawsPerShuffle, random.calls)
-        assertEquals(apps.toSet(), atScreenOff.toSet())
-        assertTrue(vm.ready().shuffleId != firstId)
-
-        // Unlock: the order drawn at screen off is the one shown; no further shuffle.
-        vm.startAsHome()
-        assertEquals(atScreenOff, vm.readyApps())
-        assertEquals(2 * drawsPerShuffle, random.calls)
-    }
-
-    @Test
-    fun home_screenOffWhileVisible_reshuffles() = runTest {
-        val vm = viewModel()
-        vm.startAsHome()
-        vm.onScreenOff()
-        assertEquals(2 * drawsPerShuffle, random.calls)
-        assertEquals(apps.toSet(), vm.readyApps().toSet())
-    }
-
-    @Test
-    fun home_screenOffBeforeFirstLoad_isSafeAndShufflesOnce() = runTest {
-        val vm = viewModel()
-        vm.setDefaultHome(true)
-        vm.onScreenOff()
-        assertEquals(0, random.calls)
-        vm.onMenuStarted()
-        assertEquals(drawsPerShuffle, random.calls)
-    }
-
-    @Test
-    fun home_configChange_keepsOrder() = runTest {
-        val vm = viewModel()
-        vm.startAsHome()
-        val before = vm.readyApps()
-        vm.onMenuStopped(changingConfigurations = true)
-        vm.startAsHome()
-        assertEquals(before, vm.readyApps())
-        assertEquals(drawsPerShuffle, random.calls)
-        assertEquals(1, catalog.loadCount)
-    }
-
-    @Test
-    fun home_coldStart_shuffles() = runTest {
-        // A new ViewModel is a new process (or a recreated home activity): it draws an order.
-        viewModel().startAsHome()
-        assertEquals(drawsPerShuffle, random.calls)
-    }
-
-    @Test
-    fun normalApp_screenOff_doesNotShuffleUntilNextOpen() = runTest {
-        val vm = viewModel()
-        vm.onMenuStarted()
-        vm.onMenuStopped(changingConfigurations = false)
-        vm.onScreenOff()
-        assertEquals(drawsPerShuffle, random.calls)
-        vm.onMenuStarted()
-        assertEquals(2 * drawsPerShuffle, random.calls)
-    }
-
-    @Test
-    fun home_packageChangeWhileStopped_reconcilesOnReturn() = runTest {
-        val vm = viewModel()
-        vm.startAsHome()
-        val before = vm.readyApps()
-        vm.onMenuStopped(changingConfigurations = false)
-        val removed = before[1]
-        val added = AppEntry("pkg.new", "pkg.new.Main", "New")
-        catalog.apps = apps - removed + added
-
-        vm.startAsHome()
-
-        assertEquals(before - removed + added, vm.readyApps())
-        assertEquals(drawsPerShuffle, random.calls)
-    }
-
     // --- Dock ---
 
     @Test
@@ -458,45 +346,6 @@ class MenuViewModelTest {
     }
 
     @Test
-    fun homeCard_dismissIsPersisted() {
-        val vm = viewModel()
-        assertEquals(false, vm.homeCardDismissed.value)
-        vm.dismissHomeCard()
-        assertEquals(true, vm.homeCardDismissed.value)
-        assertEquals(true, viewModel().homeCardDismissed.value)
-    }
-
-    // --- Home role changes and reopen before stop ---
-
-    @Test
-    fun homeRoleRemovedWhileStopped_nextStartUsesAppModeAndShuffles() = runTest {
-        // Regression: the role is handed to another launcher while Glitch is in the background;
-        // MainActivity re-checks it in onStart before onMenuStarted, so app-mode rules apply.
-        val vm = viewModel()
-        vm.startAsHome()
-        vm.onMenuStopped(changingConfigurations = false)
-
-        vm.setDefaultHome(false)
-        vm.onMenuStarted()
-
-        assertEquals(2 * drawsPerShuffle, random.calls)
-        assertEquals(apps.toSet(), vm.readyApps().toSet())
-    }
-
-    @Test
-    fun homeRoleGainedWhileStopped_nextStartKeepsOrder() = runTest {
-        val vm = viewModel()
-        vm.onMenuStarted()
-        val before = vm.readyApps()
-        vm.onMenuStopped(changingConfigurations = false)
-
-        vm.startAsHome()
-
-        assertEquals(before, vm.readyApps())
-        assertEquals(drawsPerShuffle, random.calls)
-    }
-
-    @Test
     fun appMode_reopenBeforeStop_startsNewSessionWithOneShuffle() = runTest {
         val vm = viewModel()
         vm.onMenuStarted()
@@ -509,17 +358,6 @@ class MenuViewModelTest {
         assertEquals(apps.toSet(), vm.readyApps().toSet())
         assertTrue(vm.ready().shuffleId != firstId)
         assertEquals(2, catalog.loadCount)
-    }
-
-    @Test
-    fun home_reopenBeforeStop_keepsOrder() = runTest {
-        val vm = viewModel()
-        vm.startAsHome()
-        val before = vm.readyApps()
-        vm.onMenuReopenedBeforeStop()
-        assertEquals(before, vm.readyApps())
-        assertEquals(drawsPerShuffle, random.calls)
-        assertEquals(1, catalog.loadCount)
     }
 
     @Test

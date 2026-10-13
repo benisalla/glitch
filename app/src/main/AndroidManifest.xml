@@ -21,29 +21,17 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Glitch">
         <!--
-          Launcher attributes, as in AOSP Launcher3:
-          - singleTask: one instance; Home presses reach it through onNewIntent.
-          - stateNotNeeded: the system may restart it without saved state (all state is in
-            the ViewModel and SharedPreferences), which home apps need to come back fast.
-          - clearTaskOnLaunch: nothing stacks on top of the home task.
-          Not excludeFromRecents: the system already keeps the home task out of Recents,
-          and as a normal app Glitch should stay in Recents.
+          singleTask: one menu instance. Launching Glitch again while it is in the background
+          reaches that instance (onNewIntent), which starts a new session even when onStop
+          has not arrived yet. Glitch is not a home app: no HOME intent filter.
         -->
         <activity
             android:name=".MainActivity"
-            android:clearTaskOnLaunch="true"
             android:exported="true"
-            android:launchMode="singleTask"
-            android:stateNotNeeded="true">
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            <!-- Optional: lets the user choose Glitch as the default home app. -->
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.HOME" />
-                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
     </application>
