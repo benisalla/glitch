@@ -24,7 +24,6 @@ The Play title is "Glitch: Break the Autopilot" (see `fastlane/metadata/android/
 ### Regenerating the icon and graphics
 ```
 python3 store/tools/make_graphics.py
-```
 python3 store/tools/make_screenshots.py   # run after make_graphics.py: it reads glitch-mark.png
 ```
 Both scripts need Python 3, Pillow and the Noto Sans fonts (`fonts-noto` on Debian/Ubuntu). To change the logo, replace `store/brand/glitch-icon.png` and run both scripts. `make_graphics.py` writes:
