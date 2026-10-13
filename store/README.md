@@ -61,7 +61,11 @@ keytool -genkeypair -v \
   ```
   ./gradlew :app:bundleRelease
   ```
-  Output: `app/build/outputs/bundle/release/app-release.aab`.
+  Output: `app/build/outputs/bundle/release/app-release.aab`. If signing is only partly configured, the build stops and names the missing keys.
+- [ ] Check it is signed (must print `jar verified.`, not `jar is unsigned.`):
+  ```
+  jarsigner -verify app/build/outputs/bundle/release/app-release.aab
+  ```
 - [ ] Optional sanity check: install a release build on your phone and open a few apps from the menu.
 
 ### 4. Create the app and turn on Play App Signing (owner)
@@ -115,15 +119,17 @@ Ready to upload: `store/graphics/marketing/01-hero.png` … `05-privacy.png` (10
 
 Play requirements for phone screenshots: **at least 2** (up to 8), PNG or JPEG, max 8 MB each, 16:9 or 9:16, each side between 320 px and 3840 px. Use **1080 x 1920 or larger** in portrait; at least 4 such screenshots are needed for the app to be eligible for some Play promotion surfaces.
 
-Use an emulator or a phone with only common apps installed so no personal app names appear. Capture with:
+Use an emulator or a phone with only common apps installed so no personal app names appear. Open Shuffle Menu, then capture the two raw screenshots the generator reads, one in light mode and one in dark mode:
 ```
-adb exec-out screencap -p > store/graphics/screenshots/phone-1.png
+adb shell cmd uimode night no
+adb exec-out screencap -p > store/screenshots/phone-1-light.png
+adb shell cmd uimode night yes
+sleep 2   # let the menu redraw in dark mode
+adb exec-out screencap -p > store/screenshots/phone-2-dark.png
+adb shell cmd uimode night no
+python3 store/tools/make_screenshots.py
 ```
-Suggested set:
-1. The menu right after opening (portrait).
-2. The same menu after going back and opening again, showing a different order.
-3. Scrolled further down the list.
-4. Optional: the home screen with the Shuffle Menu icon, to show it is a normal app you open.
+Switching the theme is a configuration change, so the menu keeps its order; that is expected. The script writes the five marketing images to `store/graphics/marketing/`.
 
 Do not add text overlays that claim benefits such as better focus or memory.
 

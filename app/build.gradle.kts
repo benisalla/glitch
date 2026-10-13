@@ -7,23 +7,53 @@ plugins {
 
 // Release signing comes from a gitignored keystore.properties at the repo root, or from
 // SHUFFLE_KEYSTORE_PATH / SHUFFLE_KEYSTORE_PASSWORD / SHUFFLE_KEY_ALIAS / SHUFFLE_KEY_PASSWORD.
-// If neither is complete, release builds are produced unsigned (CI does this).
+// Each value is read from keystore.properties first, then from its environment variable.
+// If nothing at all is configured, release builds are produced unsigned (CI does this).
+// If signing is only partly configured, or storeFile does not exist, building a release
+// package fails with a clear message instead of silently producing an unsigned bundle.
+// The check is lazy, so debug builds, unit tests and lint still work meanwhile.
+val keystorePropertiesFile = rootProject.file("keystore.properties")
 val keystoreProperties = Properties().apply {
-    val file = rootProject.file("keystore.properties")
-    if (file.isFile) file.inputStream().use { load(it) }
+    if (keystorePropertiesFile.isFile) keystorePropertiesFile.inputStream().use { load(it) }
 }
 
-fun signingValue(propertyKey: String, envKey: String): String? =
-    keystoreProperties.getProperty(propertyKey)?.takeIf { it.isNotBlank() }
-        ?: providers.environmentVariable(envKey).orNull?.takeIf { it.isNotBlank() }
+// keystore.properties key to environment variable.
+val signingKeys = linkedMapOf(
+    "storeFile" to "SHUFFLE_KEYSTORE_PATH",
+    "storePassword" to "SHUFFLE_KEYSTORE_PASSWORD",
+    "keyAlias" to "SHUFFLE_KEY_ALIAS",
+    "keyPassword" to "SHUFFLE_KEY_PASSWORD",
+)
 
-val releaseStoreFile = signingValue("storeFile", "SHUFFLE_KEYSTORE_PATH")
-val releaseStorePassword = signingValue("storePassword", "SHUFFLE_KEYSTORE_PASSWORD")
-val releaseKeyAlias = signingValue("keyAlias", "SHUFFLE_KEY_ALIAS")
-val releaseKeyPassword = signingValue("keyPassword", "SHUFFLE_KEY_PASSWORD")
-val hasReleaseSigning = listOf(
-    releaseStoreFile, releaseStorePassword, releaseKeyAlias, releaseKeyPassword,
-).all { it != null }
+fun envValue(envKey: String): String? =
+    providers.environmentVariable(envKey).orNull?.takeIf { it.isNotBlank() }
+
+val signingValues: Map<String, String?> = signingKeys.mapValues { (propertyKey, envKey) ->
+    keystoreProperties.getProperty(propertyKey)?.takeIf { it.isNotBlank() } ?: envValue(envKey)
+}
+val signingAttempted = keystorePropertiesFile.isFile || signingKeys.values.any { envValue(it) != null }
+val missingSigningKeys = signingValues.filterValues { it == null }.keys
+val hasReleaseSigning = missingSigningKeys.isEmpty()
+val releaseStoreFile = signingValues["storeFile"]?.let { rootProject.file(it) }
+
+val releaseSigningError: String? = when {
+    !signingAttempted -> null
+    !hasReleaseSigning -> "Release signing is partly configured; missing: " +
+        missingSigningKeys.joinToString { "$it (${signingKeys.getValue(it)})" } +
+        ". Fill in keystore.properties or unset the SHUFFLE_* variables."
+    releaseStoreFile?.isFile != true -> "Release signing storeFile does not exist: " +
+        "$releaseStoreFile. Fix storeFile in keystore.properties or SHUFFLE_KEYSTORE_PATH."
+    else -> null
+}
+
+// Fail only when a task that produces a release package is about to run.
+val releasePackagingTasks = setOf(
+    ":app:packageRelease", ":app:signReleaseBundle", ":app:packageReleaseUniversalApk",
+)
+gradle.taskGraph.whenReady {
+    val error = releaseSigningError ?: return@whenReady
+    if (allTasks.any { it.path in releasePackagingTasks }) throw GradleException(error)
+}
 
 android {
     namespace = "com.benisalla.shufflemenu"
@@ -41,10 +71,10 @@ android {
     signingConfigs {
         if (hasReleaseSigning) {
             create("release") {
-                storeFile = rootProject.file(releaseStoreFile!!)
-                storePassword = releaseStorePassword
-                keyAlias = releaseKeyAlias
-                keyPassword = releaseKeyPassword
+                storeFile = releaseStoreFile
+                storePassword = signingValues["storePassword"]
+                keyAlias = signingValues["keyAlias"]
+                keyPassword = signingValues["keyPassword"]
             }
         }
     }
