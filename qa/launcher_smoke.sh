@@ -13,6 +13,7 @@
 #   ACTIVITY         activity to start in app mode (default .MainActivity)
 #   OTHER_ACTION     intent action for "use another app" (default android.settings.SETTINGS)
 #   SHUFFLE_TRIES    unlock attempts before declaring "no reshuffle" (default 3)
+#   SNAP_TRIES       max dumps per snapshot while waiting for two identical ones (default 6)
 #   DOCK_RID         resource-id (testTag) substring of dock tiles (default dock_tile)
 #   GRID_RID         resource-id (testTag) substring of grid tiles (default app_tile)
 #                    When no node carries either tag (builds before v1.1), the dock is found by
@@ -35,6 +36,7 @@ PKG="${PKG:-com.benisalla.glitch}"
 ACTIVITY="${ACTIVITY:-.MainActivity}"
 OTHER_ACTION="${OTHER_ACTION:-android.settings.SETTINGS}"
 SHUFFLE_TRIES="${SHUFFLE_TRIES:-3}"
+SNAP_TRIES="${SNAP_TRIES:-6}"
 DOCK_RID="${DOCK_RID:-dock_tile}"
 GRID_RID="${GRID_RID:-app_tile}"
 DOCK_ZONE_PCT="${DOCK_ZONE_PCT:-15}"
@@ -250,11 +252,23 @@ parse_dump() {
 meta() { grep "^$2=" "$WORK/$1.meta" | head -n 1 | cut -d= -f2-; }
 joined() { awk 'BEGIN { ORS = "" } { if (NR > 1) print " | "; print }' "$1"; }
 
-# Captures dock + grid as snapshot $1 and prints a one-line summary.
+# Captures dock + grid as snapshot $1 and prints a one-line summary. Waits until the screen has
+# settled: the loading indicator is gone and two consecutive dumps parse to the same dock and grid
+# (up to SNAP_TRIES dumps, about 1 s apart), so a frame caught mid-update is never compared.
 snapshot() {
-  local name="$1"
-  dump_ui "$name"
-  parse_dump "$name"
+  local name="$1" i prev="" cur=""
+  for i in $(seq 1 "$SNAP_TRIES"); do
+    dump_ui "$name"
+    parse_dump "$name"
+    if grep -q 'content-desc="Loading apps"' "$WORK/$name.xml"; then
+      prev=""
+      continue
+    fi
+    cur="$(cat "$WORK/$name.dock")|$(cat "$WORK/$name.grid")"
+    if [ -n "$prev" ] && [ "$cur" = "$prev" ]; then break; fi
+    prev="$cur"
+    if [ "$i" = "$SNAP_TRIES" ]; then log "warning: [$name] screen did not settle after $SNAP_TRIES dumps"; fi
+  done
   log "[$name] rotation=$(meta "$name" rotation) scrollable=$(meta "$name" scrollable) dock-rule=$(meta "$name" dockrule)"
   log "[$name] dock ($(wc -l < "$WORK/$name.dock")): $(joined "$WORK/$name.dock")"
   log "[$name] grid ($(wc -l < "$WORK/$name.grid") visible): $(joined "$WORK/$name.grid")"
@@ -496,7 +510,10 @@ fi
 info "App mode"
 if [ "$LAUNCHER_BUILD" = 1 ] && [ -n "$PREV_HOME" ] && [ "$PREV_HOME" != "$PKG" ]; then
   adb_sh "cmd role add-role-holder $HOME_ROLE $PREV_HOME" > /dev/null || true
-  log "home role handed back to $PREV_HOME for app-mode checks"
+  # Without this, a failed hand-back would leave Glitch as home, where keeping the order on
+  # return is correct, and the reopen check below would fail for the wrong reason.
+  if [ "$(home_holder)" = "$PREV_HOME" ]; then pass "home role handed back to $PREV_HOME for app mode"
+  else fail "home role handed back to $PREV_HOME for app mode" "role holder is '$(home_holder)'"; fi
 fi
 open_app_mode
 snapshot app0
