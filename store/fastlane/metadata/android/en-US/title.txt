@@ -1,1 +1,1 @@
-Shuffle App Menu
+Shuffle Menu: Random App Order

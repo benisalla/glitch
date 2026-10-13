@@ -1,26 +1,53 @@
-Shuffle App Menu shows the apps installed on your phone in a random order. Every time you open it, the order is new, so you read the list to find what you want instead of tapping a spot from habit.
+Your apps, in a new order every time you open the menu.
 
-HOW IT WORKS
-• Open Shuffle Menu from your home screen or app drawer.
-• Your apps appear with their usual icon and name, in a shuffled order.
-• Tap an app to open it, exactly as you normally would.
-• Come back to the menu and you get a fresh order.
+Shuffle Menu shows the apps on your phone with their usual icons and names, in a random order. Each time you open it, the order is new. So instead of tapping a spot from memory, you look at the list and choose. A small change to a moment you repeat many times a day.
 
-WHAT STAYS THE SAME
-• The order does not jump around while you are looking at it. Rotating the phone keeps the same order.
-• If you install or remove an app while the menu is open, that app is added or removed and everything else stays where it was.
+How it works
+1. Open Shuffle Menu from your home screen.
+2. Your apps appear in a fresh, shuffled order.
+3. Look, then tap. The app opens just like it always does.
 
-WHAT IT IS NOT
-• It is a separate app, not a home-screen (launcher) replacement. Your phone's home screen and app drawer keep working as before.
-• It has no reminders, blockers, timers, usage tracking or accounts.
-• It makes no claims about focus, memory or productivity. It only changes the order of the list.
+Come back to the menu and the order changes again.
 
-PRIVACY
-• No permissions requested. No internet access.
+Why shuffle?
+Most of us open apps by position. The thumb knows where an icon lives and taps before we have really decided. That is handy, and it is also a habit that runs on its own.
+
+Shuffle Menu gently breaks that pattern. When the icons are never in the same place twice, you read the names and pick the app you actually came for. It takes a second, and that second is yours.
+
+Steady while you look
+• The order stays put while the menu is on screen. It does not jump around, even when you rotate the phone.
+• Install or remove an app while the menu is open, and only that app is added or removed. Everything else stays where it was.
+• Light and dark themes follow your system setting.
+
+Private by design
+• No permissions requested.
+• No internet access, so nothing can leave your phone.
 • No ads, no analytics, no tracking, no accounts.
-• The list of your apps is read on your phone and never leaves it.
-• To find apps it can open, it uses Android's narrow "launcher apps" visibility, not access to every package on the device.
+• Your app list is read on your phone to draw the menu, and stays there.
+• It only sees apps that show up in a launcher, not every package on your device.
 
-GOOD TO KNOW
-• Apps in a work profile or in Samsung Secure Folder are not listed.
-• Tip: long-press Shuffle Menu in your app drawer and add it to your home screen for quick access.
+What it doesn't do
+• It does not replace your home screen or your app drawer. Both keep working exactly as before.
+• No reminders, blockers, timers or usage statistics.
+• It does not lock, hide or limit any app. It only changes the order of the list.
+
+FAQ
+Does it replace my home screen?
+No. Shuffle Menu is a normal app you open when you want it. Your home screen and app drawer stay the same.
+
+How do I keep it handy?
+Long-press Shuffle Menu in your app drawer and add it to your home screen.
+
+Does the order change while I'm looking at it?
+No. You get one new order each time you open the menu. It stays the same until you leave and come back.
+
+Why does it need no permissions?
+Android lets an app see the apps that appear in a launcher without any special permission. That is all Shuffle Menu needs.
+
+Are all my apps listed?
+Every app you can open from your app drawer is listed. Apps inside a work profile or a private or secure folder are not shown.
+
+Does it cost anything?
+No. There are no ads and no in-app purchases.
+
+Simple, quiet and private. Open it, look, then tap.
