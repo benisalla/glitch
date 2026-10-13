@@ -1,5 +1,9 @@
 # Glitch
 
+<p align="center">
+  <img src="store/graphics/feature-graphic.png" width="720" alt="Glitch logo: a white ring broken by a gold tile. Glitch the autopilot. Look, then tap.">
+</p>
+
 **Glitch the autopilot. Look, then tap.**
 
 [![CI](https://github.com/benisalla/glitch/actions/workflows/ci.yml/badge.svg)](https://github.com/benisalla/glitch/actions/workflows/ci.yml)
@@ -13,12 +17,6 @@ Glitch is an Android app for breaking the autopilot on your phone. Its first fea
   <a href="https://github.com/benisalla/glitch/releases/latest/download/glitch.apk"><b>⬇ Download Glitch for Android</b></a>
   &nbsp;·&nbsp; <a href="https://benisalla.github.io/glitch/">Website</a>
   &nbsp;·&nbsp; <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/benisalla/glitch">Get updates with Obtainium</a>
-</p>
-
-<p align="center">
-  <img src="store/screenshots/phone-1-light.png" width="260" alt="Glitch in light mode">
-  &nbsp;&nbsp;
-  <img src="store/screenshots/phone-2-dark.png" width="260" alt="Glitch in dark mode">
 </p>
 
 ## Vision
