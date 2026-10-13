@@ -1,5 +1,5 @@
-Welcome to Shuffle Menu 1.0.0, the first release.
-• Your apps appear in a new order every time you open the menu.
+Welcome to Glitch 1.0.0, the first release.
+• Your apps appear in a new random order every time you open the menu.
 • Tap any app to open it as usual. Come back for a fresh order.
 • The order holds still while you look, even when you rotate the phone.
 • New or removed apps update the list without reshuffling the rest.

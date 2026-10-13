@@ -12,7 +12,7 @@ Ready-to-use lines. Source numbers refer to the table in `research.md`. Rules: n
 | 6 | "Tap an app and it opens normally. No timers, no blockers, no nagging." | Describes the app; no source needed. |
 | 7 | "Back to the menu? Fresh order." | Describes the app (a new session reshuffles); no source needed. |
 | 8 | "No permissions. No internet. No tracking. Your app list never leaves your phone." | Describes the app (manifest and AGENTS.md privacy rules); no source needed. |
-| 9 | "Keeps your home screen and app drawer exactly as they are. Shuffle Menu is a separate menu you open when you want it." | Describes the app (AGENTS.md platform boundary); no source needed. |
+| 9 | "Keeps your home screen and app drawer exactly as they are. Glitch is a separate menu you open when you want it." | Describes the app (AGENTS.md platform boundary); no source needed. |
 | 10 | "Takes a few seconds longer to find an app. That's the point." | #5, #6 (a changing order is slower). Honest about the trade-off. |
 
 ## Do not use (see `research.md` for the reasons)
