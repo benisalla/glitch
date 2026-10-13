@@ -114,7 +114,7 @@ Rules (from the Show HN guidelines): it must be something people can try, with n
 > - Kotlin + Compose, AndroidX only, MIT.
 > - I built it with an AI coding assistant (Claude Code). I reviewed and tested every change, and the history is public.
 >
-> It isn't a launcher replacement and doesn't touch the system app drawer. The next ideas (an optional "still want this?" pause for apps you mark yourself) are on the roadmap, not shipped.
+> You can set it as your home screen (optional; switch back anytime), and then your apps reshuffle every time you unlock, with up to 4 fixed apps in a dock. The next ideas (an optional "still want this?" pause for apps you mark yourself) are on the roadmap, not shipped.
 >
 > APK: https://github.com/benisalla/glitch/releases/latest. You can also add it in Obtainium. I'd especially like feedback on whether the friction is annoying or useful after a few days.
 
@@ -161,7 +161,7 @@ Alternative (55 characters): `Your Android apps in a new order every time you op
 > https://github.com/benisalla/glitch
 
 **Thread follow-ups (optional):**
-> 2/ It's not a launcher and doesn't touch your app drawer. Add it to your home screen and open it when you want to choose instead of autopilot.
+> 2/ Set it as your home screen and your apps reshuffle on every unlock. Phone, camera and messages stay fixed in a dock. Switch back to your usual launcher anytime.
 >
 > 3/ Privacy: zero permissions, no INTERNET. It only sees apps that appear in a launcher. MIT licensed, Kotlin + Compose.
 >

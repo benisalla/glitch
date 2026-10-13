@@ -39,7 +39,7 @@ Play ranks mostly on the title, then the short description, then natural use of 
 
 Deliberately not used:
 - "Glitch" alone in the title. Without "Break the Autopilot" it would compete with games and effects apps. Glitch is more than a menu: the shuffle is only its first feature, so "menu" stays out of the title.
-- "App drawer" and "launcher" in the title or short description. The app is not a launcher or drawer replacement, and those words would attract people expecting one. They appear in the full description only to say what the app is not.
+- "Launcher" in the title. Since v1.1 Glitch can be your home screen, but it is a focused one (no widgets, wallpaper or search yet); the full description explains the home-screen mode instead, so people know what to expect.
 - Any focus, attention, memory, productivity, mindfulness, detox, screen-time, addiction or mental-health wording, and no mention of any condition. Not allowed by AGENTS.md and risky under Play's metadata policy.
 - Film or pop-culture references to "breaking out" of a simulation, and their trademarked names. The "autopilot" wording carries the vibe on its own.
 - Brand names (phone makers, other apps), superlatives, "free" in the title, emoji, ALL CAPS.

@@ -600,3 +600,11 @@ More epoch values: 2026-10-13 06:59:30 Paris = `1791867570000`; 2026-10-16 23:59
 6. **Cold start after process death:** v1.1 reshuffles on *any* cold start. Since the order is now persisted, we could reshuffle only after a **reboot** (detected with `Settings.Global.BOOT_COUNT`, no permission) or when due, so a background kill while the phone is in use no longer reshuffles. Change the v1.1 rule (**recommended**), or keep it?
 7. **Limits:** max 6 windows, and date pause up to 365 days. OK?
 8. **Placement:** a ⋮ on the title row shared with "Change home app". OK, or does the launcher PR already have a settings entry to reuse?
+
+## Owner decisions (2026-10-13)
+
+1. Default schedule: shuffle all day, every day. Nothing changes on upgrade until the user adds windows.
+2. "Until tomorrow" ends at midnight.
+3. A background process kill while the phone is in use does not reshuffle. A cold start reshuffles only after a reboot, or when a shuffle is due (screen-off / unlock).
+4. A missed shuffle is applied at the next unlock or Home return once shuffling is allowed again.
+5. Remaining open questions take the recommended answers: master switch off means never reshuffle; the schedule also applies in normal-app mode; at most 6 windows and date pauses up to 365 days; the ⋮ menu is shared with "Change home app".
