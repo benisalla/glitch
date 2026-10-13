@@ -1,6 +1,6 @@
-package com.benisalla.shufflemenu.menu
+package com.benisalla.glitch.menu
 
-import com.benisalla.shufflemenu.model.AppEntry
+import com.benisalla.glitch.model.AppEntry
 import kotlin.random.Random
 
 /** Pure ordering rules for the menu. No Android dependencies, so it is unit tested on the JVM. */

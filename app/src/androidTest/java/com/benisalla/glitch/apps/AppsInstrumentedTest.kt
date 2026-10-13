@@ -1,11 +1,11 @@
-package com.benisalla.shufflemenu.apps
+package com.benisalla.glitch.apps
 
 import android.content.Context
 import android.content.Intent
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.benisalla.shufflemenu.model.AppEntry
-import com.benisalla.shufflemenu.model.LaunchResult
+import com.benisalla.glitch.model.AppEntry
+import com.benisalla.glitch.model.LaunchResult
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull

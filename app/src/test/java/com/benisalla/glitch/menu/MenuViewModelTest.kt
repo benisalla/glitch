@@ -1,10 +1,10 @@
-package com.benisalla.shufflemenu.menu
+package com.benisalla.glitch.menu
 
 import android.graphics.drawable.Drawable
-import com.benisalla.shufflemenu.model.AppCatalog
-import com.benisalla.shufflemenu.model.AppEntry
-import com.benisalla.shufflemenu.model.AppLauncher
-import com.benisalla.shufflemenu.model.LaunchResult
+import com.benisalla.glitch.model.AppCatalog
+import com.benisalla.glitch.model.AppEntry
+import com.benisalla.glitch.model.AppLauncher
+import com.benisalla.glitch.model.LaunchResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow

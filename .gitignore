@@ -37,3 +37,6 @@ google-services.json
 .claude/settings.local.json
 .claude/**/*.local.*
 CLAUDE.local.md
+
+# Agent worktrees
+.claude/worktrees/

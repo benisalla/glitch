@@ -1,4 +1,4 @@
-package com.benisalla.shufflemenu.apps
+package com.benisalla.glitch.apps
 
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
@@ -7,9 +7,9 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.os.Build
-import com.benisalla.shufflemenu.model.AppEntry
-import com.benisalla.shufflemenu.model.AppLauncher
-import com.benisalla.shufflemenu.model.LaunchResult
+import com.benisalla.glitch.model.AppEntry
+import com.benisalla.glitch.model.AppLauncher
+import com.benisalla.glitch.model.LaunchResult
 
 /**
  * The same intent a home-screen launcher sends, so the target app opens normally

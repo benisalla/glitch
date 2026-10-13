@@ -1,8 +1,8 @@
 ---
-title: Shuffle App Menu
+title: Glitch
 ---
 
-# Shuffle App Menu
+# Glitch
 
 An Android app that shows your installed apps in a random order each time you open it. Tap an app to open it normally.
 

@@ -1,16 +1,18 @@
-# Shuffle App Menu
+# Glitch
 
-[![CI](https://github.com/benisalla/shuffle-app-menu/actions/workflows/ci.yml/badge.svg)](https://github.com/benisalla/shuffle-app-menu/actions/workflows/ci.yml)
+**Glitch the autopilot. Look, then tap.**
+
+[![CI](https://github.com/benisalla/glitch-menu/actions/workflows/ci.yml/badge.svg)](https://github.com/benisalla/glitch-menu/actions/workflows/ci.yml)
 ![Android 8.0+](https://img.shields.io/badge/Android-8.0%2B-3DDC84?logo=android&logoColor=white)
 ![Permissions: none](https://img.shields.io/badge/permissions-none-brightgreen)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-An Android app menu that lists your installed apps in a random order each time you open it. It is meant to break the habit of tapping apps by position: you have to read the menu to find what you want.
+Glitch is an Android app menu that lists your installed apps in a random order each time you open it. It is meant to break the habit of tapping apps by position: you have to read the menu to find what you want.
 
 <p align="center">
-  <img src="store/screenshots/phone-1-light.png" width="260" alt="Shuffle Menu in light mode">
+  <img src="store/screenshots/phone-1-light.png" width="260" alt="Glitch in light mode">
   &nbsp;&nbsp;
-  <img src="store/screenshots/phone-2-dark.png" width="260" alt="Shuffle Menu in dark mode">
+  <img src="store/screenshots/phone-2-dark.png" width="260" alt="Glitch in dark mode">
 </p>
 
 ## What it does
@@ -20,7 +22,7 @@ An Android app menu that lists your installed apps in a random order each time y
 - If an app is installed or removed while the menu is open, the list updates without reshuffling the other entries.
 
 ## What it does not do
-- It does **not** replace or rearrange Samsung's swipe-up app drawer, and it is not a home-screen (launcher) replacement. It is a separate app, "Shuffle Menu", that you open from your home screen.
+- It does **not** replace or rearrange Samsung's swipe-up app drawer, and it is not a home-screen (launcher) replacement. It is a separate app, "Glitch", that you open from your home screen.
 - No reminders, blockers, timers, usage tracking or accounts.
 - It makes no claim to improve focus, memory or intelligence. It only changes the order of the list.
 
@@ -54,19 +56,19 @@ The steps below are standard Android procedures; menu names can differ slightly 
    ```
 
 **Option B: download the APK built by CI**
-1. On GitHub, open the repository's Actions tab, pick a successful workflow run, and download the artifact named `shuffle-app-menu-debug-apk`.
+1. On GitHub, open the repository's Actions tab, pick a successful workflow run, and download the artifact named `glitch-debug-apk`.
 2. Unzip it to get `app-debug.apk` and copy the APK to the phone (or download it on the phone directly).
 3. Open the APK with My Files or your browser. When asked, allow "Install unknown apps" for that app, then tap Install.
 
 **Put it on the home screen**
-Open the app drawer, long-press "Shuffle Menu", and choose "Add to Home". Open the menu from that icon whenever you want a shuffled list.
+Open the app drawer, long-press "Glitch", and choose "Add to Home". Open the menu from that icon whenever you want a shuffled list.
 
 ## Known limitations
 - It does not replace the One UI app drawer or home screen; both keep working as before.
 - Apps in a work profile or Samsung Secure Folder are not listed.
 - Release builds are signed only when you provide your own upload key in `keystore.properties` (see `store/README.md`); without it `bundleRelease` produces an unsigned bundle.
 - Tested on an Android emulator (API 35) only; not yet tested on a physical Samsung device.
-- The built manifest contains one entry added automatically by AndroidX Core: `com.benisalla.shufflemenu.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`. It is signature-level and private to this app, is never shown to the user, and grants no access to anything. The app requests no user-facing permissions.
+- The built manifest contains one entry added automatically by AndroidX Core: `com.benisalla.glitch.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`. It is signature-level and private to this app, is never shown to the user, and grants no access to anything. The app requests no user-facing permissions.
 - Lint reports 2 warnings and no errors: `OldTargetApi` (targetSdk is 36 while compileSdk is 37) and `DataExtractionRules` (backup is disabled with `allowBackup="false"`; the app stores no user data).
 
 ## Release / Play Store

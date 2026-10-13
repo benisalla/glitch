@@ -1,4 +1,4 @@
-package com.benisalla.shufflemenu.menu
+package com.benisalla.glitch.menu
 
 import android.graphics.Canvas
 import android.graphics.Color
@@ -22,8 +22,8 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.benisalla.shufflemenu.R
-import com.benisalla.shufflemenu.model.AppEntry
+import com.benisalla.glitch.R
+import com.benisalla.glitch.model.AppEntry
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -52,7 +52,7 @@ class MenuContentTest {
         loadIcon: suspend (AppEntry) -> Drawable? = { null },
     ) {
         composeRule.setContent {
-            ShuffleMenuTheme(darkTheme = darkTheme) {
+            GlitchTheme(darkTheme = darkTheme) {
                 MenuContent(state = state, loadIcon = loadIcon, onAppClick = onAppClick, onRetry = onRetry)
             }
         }

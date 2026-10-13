@@ -1,4 +1,4 @@
-# Agent instructions: Shuffle App Menu
+# Agent instructions: Glitch
 
 ## Product scope
 - One purpose: show the installed, launchable apps (icon + label) in a random order, so the user has to look instead of tapping by position. Tapping an app opens it normally.
@@ -7,10 +7,10 @@
 - Do not expand scope without the owner's explicit approval.
 
 ## Architecture
-Single Gradle module `:app`, Kotlin + Jetpack Compose, package `com.benisalla.shufflemenu` (`app/src/main/java/com/benisalla/shufflemenu/`).
+Single Gradle module `:app`, Kotlin + Jetpack Compose, package `com.benisalla.glitch` (`app/src/main/java/com/benisalla/glitch/`).
 - `model/`: shared contracts: `AppEntry` (key = `package/activity`), `AppCatalog`, `AppLauncher`, `LaunchResult`.
 - `apps/`: `PackageManagerAppCatalog` (discovers launcher activities, loads icons, emits package changes) and `IntentAppLauncher`.
-- `menu/`: shuffle logic, session state (`MenuViewModel`), and Compose UI (`MenuScreen`, `ShuffleMenuTheme`).
+- `menu/`: shuffle logic, session state (`MenuViewModel`), and Compose UI (`MenuScreen`, `GlitchTheme`).
 - `MainActivity.kt`: wiring only. It calls `onMenuStarted()` from `onStart` and `onMenuStopped(isChangingConfigurations)` from `onStop`.
 
 Session semantics (keep these):

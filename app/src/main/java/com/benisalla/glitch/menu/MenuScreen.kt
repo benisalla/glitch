@@ -1,4 +1,4 @@
-package com.benisalla.shufflemenu.menu
+package com.benisalla.glitch.menu
 
 import android.graphics.drawable.Drawable
 import androidx.compose.foundation.Image
@@ -55,8 +55,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.benisalla.shufflemenu.R
-import com.benisalla.shufflemenu.model.AppEntry
+import com.benisalla.glitch.R
+import com.benisalla.glitch.model.AppEntry
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

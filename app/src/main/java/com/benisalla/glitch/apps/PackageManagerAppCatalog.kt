@@ -1,4 +1,4 @@
-package com.benisalla.shufflemenu.apps
+package com.benisalla.glitch.apps
 
 import android.content.BroadcastReceiver
 import android.content.ComponentName
@@ -15,8 +15,8 @@ import android.os.Looper
 import android.os.UserHandle
 import android.util.Log
 import androidx.core.content.ContextCompat
-import com.benisalla.shufflemenu.model.AppCatalog
-import com.benisalla.shufflemenu.model.AppEntry
+import com.benisalla.glitch.model.AppCatalog
+import com.benisalla.glitch.model.AppEntry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow

@@ -1,4 +1,4 @@
-# R8 rules for Shuffle App Menu release builds.
+# R8 rules for Glitch release builds.
 #
 # Compose, AndroidX and Kotlin ship their own consumer rules, and the app uses no
 # reflection, serialization or JNI, so no extra keep rules are needed.

@@ -1,6 +1,6 @@
-package com.benisalla.shufflemenu.menu
+package com.benisalla.glitch.menu
 
-import com.benisalla.shufflemenu.model.AppEntry
+import com.benisalla.glitch.model.AppEntry
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
