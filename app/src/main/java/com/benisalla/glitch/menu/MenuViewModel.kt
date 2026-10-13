@@ -78,6 +78,13 @@ class MenuViewModel(
     private var order: List<AppEntry>? = null
     /** Dock keys; null until loaded (or chosen from the defaults) on the first catalog load. */
     private var dockKeys: List<String>? = null
+    /**
+     * True once the dock is persisted: the user edited it, or the first-run defaults resolved to at
+     * least one app. Until then the defaults are looked up again on every load, so a lookup that
+     * found nothing (e.g. right after phone setup) is retried. A dock the user emptied is persisted
+     * as empty and stays empty.
+     */
+    private var dockPersisted = false
     private var shuffleId = 0
     private var sessionActive = false
     private var needsShuffle = false
@@ -188,6 +195,7 @@ class MenuViewModel(
 
     private fun saveDock(keys: List<String>) {
         dockKeys = keys
+        dockPersisted = true
         store.saveDock(keys)
         publish()
     }
@@ -207,7 +215,7 @@ class MenuViewModel(
                 if (needsShuffle || order == null) _state.value = MenuUiState.Error
                 return@launch
             }
-            if (dockKeys == null) dockKeys = store.loadDock() ?: firstRunDock(latest)
+            if (!dockPersisted) dockKeys = loadOrResolveDock(latest)
             val current = order
             order = if (needsShuffle || current == null) {
                 shuffleId++
@@ -220,7 +228,12 @@ class MenuViewModel(
         }
     }
 
-    private suspend fun firstRunDock(apps: List<AppEntry>): List<String> {
+    /** The saved dock or, if none was ever saved, the system default apps (see [dockPersisted]). */
+    private suspend fun loadOrResolveDock(apps: List<AppEntry>): List<String> {
+        store.loadDock()?.let {
+            dockPersisted = true
+            return it
+        }
         val slots = try {
             defaultDockApps()
         } catch (e: CancellationException) {
@@ -228,7 +241,12 @@ class MenuViewModel(
         } catch (_: Exception) {
             emptyList()
         }
-        return Dock.defaults(slots, apps).also { store.saveDock(it) }
+        val defaults = Dock.defaults(slots, apps)
+        if (defaults.isNotEmpty()) {
+            store.saveDock(defaults)
+            dockPersisted = true
+        }
+        return defaults
     }
 
     private fun publish() {

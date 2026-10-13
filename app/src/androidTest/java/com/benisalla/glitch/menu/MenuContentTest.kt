@@ -307,4 +307,82 @@ class MenuContentTest {
         setContent(MenuUiState.Ready(apps = apps))
         composeRule.onNodeWithTag(MenuTags.HOME_CARD).assertDoesNotExist()
     }
+
+    // --- Header More options (⋮) menu ---
+
+    private fun openHeaderMenu() {
+        composeRule.onNodeWithTag(MenuTags.HEADER_MENU)
+            .assertIsDisplayed()
+            .assertHasClickAction()
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.ContentDescription, listOf(string(R.string.menu_more_options))))
+            .performClick()
+        composeRule.waitForIdle()
+    }
+
+    private fun assertHeaderMenuOffersChangeHome(state: MenuUiState) {
+        var changes = 0
+        setContent(state, isDefaultHome = true, actions = MenuActions(onChangeHome = { changes++ }))
+        openHeaderMenu()
+        composeRule.onNodeWithText(string(R.string.home_card_title)).assertDoesNotExist()
+        composeRule.onNodeWithText(string(R.string.menu_change_home)).assertIsDisplayed().performClick()
+        assertEquals(1, changes)
+        composeRule.onNodeWithText(string(R.string.menu_change_home)).assertDoesNotExist()
+    }
+
+    private fun assertHeaderMenuOffersMakeHome(state: MenuUiState) {
+        var requests = 0
+        setContent(state, isDefaultHome = false, actions = MenuActions(onMakeHome = { requests++ }))
+        openHeaderMenu()
+        composeRule.onNodeWithText(string(R.string.menu_change_home)).assertDoesNotExist()
+        composeRule.onNodeWithText(string(R.string.home_card_title)).assertIsDisplayed().performClick()
+        assertEquals(1, requests)
+    }
+
+    @Test
+    fun headerMenu_ready_asHome_changeHomeApp() = assertHeaderMenuOffersChangeHome(MenuUiState.Ready(apps))
+
+    @Test
+    fun headerMenu_ready_notHome_makeHome() = assertHeaderMenuOffersMakeHome(MenuUiState.Ready(apps))
+
+    @Test
+    fun headerMenu_empty_asHome_changeHomeApp() {
+        assertHeaderMenuOffersChangeHome(MenuUiState.Empty)
+        composeRule.onNodeWithText(string(R.string.menu_empty)).assertIsDisplayed()
+    }
+
+    @Test
+    fun headerMenu_empty_notHome_makeHome() = assertHeaderMenuOffersMakeHome(MenuUiState.Empty)
+
+    @Test
+    fun headerMenu_error_asHome_changeHomeAppAndRetryStillWork() {
+        var retries = 0
+        var changes = 0
+        setContent(MenuUiState.Error, isDefaultHome = true, onRetry = { retries++ }, actions = MenuActions(onChangeHome = { changes++ }))
+        composeRule.onNodeWithText(string(R.string.menu_retry)).performClick()
+        openHeaderMenu()
+        composeRule.onNodeWithText(string(R.string.menu_change_home)).performClick()
+        assertEquals(1, retries)
+        assertEquals(1, changes)
+    }
+
+    @Test
+    fun headerMenu_error_notHome_makeHome() = assertHeaderMenuOffersMakeHome(MenuUiState.Error)
+
+    @Test
+    fun headerMenu_emptyAndError_showTitleHeading() {
+        setContent(MenuUiState.Empty)
+        composeRule.onNodeWithText(string(R.string.app_name)).assertIsDisplayed().assert(isHeading())
+    }
+
+    @Test
+    fun headerMenu_notShownWhileLoading() {
+        setContent(MenuUiState.Loading)
+        composeRule.onNodeWithTag(MenuTags.HEADER_MENU).assertDoesNotExist()
+    }
+
+    @Test
+    fun headerMenu_meetsMinimumTouchTarget() {
+        setContent(MenuUiState.Ready(apps))
+        composeRule.onNodeWithTag(MenuTags.HEADER_MENU).assertWidthIsAtLeast(48.dp).assertHeightIsAtLeast(48.dp)
+    }
 }

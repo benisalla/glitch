@@ -542,4 +542,75 @@ class MenuViewModelTest {
         assertEquals(listOf(apps[0], apps[1]), ready.first().dock)
         assertTrue(ready.first().apps.none { it in ready.first().dock })
     }
+
+    // --- First-run dock retry ---
+
+    @Test
+    fun firstRun_emptyDefaultsAreNotSavedAndAreRetriedOnNextLoad() = runTest {
+        store.dock = null
+        var slots = emptyList<List<DefaultApp>>()
+        val vm = MenuViewModel(catalog, launcher, store, random, defaultDockApps = { slots })
+        vm.onMenuStarted()
+        assertEquals(emptyList<AppEntry>(), vm.ready().dock)
+        assertNull("nothing resolved: nothing saved", store.dock)
+        assertTrue(store.savedDocks.isEmpty())
+
+        // Later (e.g. the dialer became visible after setup) the next load picks the defaults up.
+        slots = listOf(listOf(DefaultApp("pkg.2")), listOf(DefaultApp("pkg.4")))
+        vm.onMenuStopped(changingConfigurations = false)
+        vm.onMenuStarted()
+        assertEquals(listOf(apps[1], apps[3]), vm.ready().dock)
+        assertEquals(listOf(apps[1].key, apps[3].key), store.dock)
+
+        // Once saved, they are not looked up again.
+        slots = listOf(listOf(DefaultApp("pkg.6")))
+        vm.onMenuStopped(changingConfigurations = false)
+        vm.onMenuStarted()
+        assertEquals(listOf(apps[1], apps[3]), vm.ready().dock)
+    }
+
+    @Test
+    fun firstRun_emptyDefaultsAreRetriedAfterProcessRestart() = runTest {
+        store.dock = null
+        MenuViewModel(catalog, launcher, store, random, defaultDockApps = { emptyList() }).onMenuStarted()
+        assertNull(store.dock)
+
+        val restarted = MenuViewModel(catalog, launcher, store, random, defaultDockApps = { listOf(listOf(DefaultApp("pkg.3"))) })
+        restarted.onMenuStarted()
+        assertEquals(listOf(apps[2]), restarted.ready().dock)
+    }
+
+    @Test
+    fun userEmptiedDock_staysEmptyEvenWhenDefaultsResolve() = runTest {
+        store.dock = null
+        val defaults = listOf(listOf(DefaultApp("pkg.1")))
+        val vm = MenuViewModel(catalog, launcher, store, random, defaultDockApps = { defaults })
+        vm.onMenuStarted()
+        assertEquals(listOf(apps[0]), vm.ready().dock)
+
+        vm.removeFromDock(apps[0])
+        assertEquals(emptyList<String>(), store.dock)
+        vm.onMenuStopped(changingConfigurations = false)
+        vm.onMenuStarted()
+        assertEquals(emptyList<AppEntry>(), vm.ready().dock)
+
+        val restarted = MenuViewModel(catalog, launcher, store, random, defaultDockApps = { defaults })
+        restarted.onMenuStarted()
+        assertEquals(emptyList<AppEntry>(), restarted.ready().dock)
+    }
+
+    @Test
+    fun userAddsToDockWhileDefaultsUnresolved_isSavedAndDefaultsNoLongerApply() = runTest {
+        store.dock = null
+        var slots = emptyList<List<DefaultApp>>()
+        val vm = MenuViewModel(catalog, launcher, store, random, defaultDockApps = { slots })
+        vm.onMenuStarted()
+        vm.addToDock(apps[5])
+        assertEquals(listOf(apps[5].key), store.dock)
+
+        slots = listOf(listOf(DefaultApp("pkg.1")))
+        vm.onMenuStopped(changingConfigurations = false)
+        vm.onMenuStarted()
+        assertEquals(listOf(apps[5]), vm.ready().dock)
+    }
 }

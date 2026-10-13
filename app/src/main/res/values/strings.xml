@@ -14,7 +14,7 @@
     <string name="menu_app_info">App info</string>
     <string name="menu_change_home">Change home app</string>
     <string name="home_card_title">Make Glitch your home screen</string>
-    <string name="home_card_body">Your apps get a new order each time you unlock your phone. You can switch back at any time.</string>
+    <string name="home_card_body">Your apps get a new order each time you lock and unlock your phone. You can switch back at any time.</string>
     <string name="home_card_action">Set as home</string>
     <string name="home_card_dismiss">Not now</string>
 </resources>
