@@ -23,10 +23,10 @@ Glitch is an Android app for breaking the autopilot on your phone. Its first fea
 Your phone is designed to be tapped without thinking. Glitch is a small, kind interruption in that loop: today it shuffles your apps so you look before you tap. Next, it grows into gentle cues you set yourself, designed using research on attention, habits and ADHD-friendly design. No lectures, no streaks, no lockouts, and nothing leaves your phone. Read the full [vision](VISION.md).
 
 ### Now and next
-- **v1.2, Shuffled apps widget (current):** a home-screen widget that shows your apps in a shuffled order on your usual home screen. Still no permissions.
 - **v1.1, dock:** a fixed dock keeps up to 4 everyday apps in place while the rest shuffle. Still no permissions. (An optional home-screen mode in 1.1.0 was removed in 1.1.1.)
-- **v1.2, intention moment:** mark the apps that pull you in, get a calm "Still want this?" pause with your own if-then plans, and switch to focus sets. Still no permissions.
-- **v1.3, gentle cues:** an optional kind time reminder, a focus widget and a Quick Settings tile.
+- **v1.2, Shuffled apps widget (current):** a home-screen widget that shows your apps in a shuffled order on your usual home screen. Still no permissions.
+- **v1.3, intention moment:** mark the apps that pull you in, get a calm "Still want this?" pause with your own if-then plans, and switch to focus sets. Still no permissions.
+- **v1.4, gentle cues:** an optional kind time reminder, a focus widget and a Quick Settings tile.
 - **v2.0, time awareness:** optional on-device usage awareness, and a first Scroll Glitch that steps in with *your own* reminder after long short-video sessions.
 - **Future, the Scroll Glitch add-on:** detects endless Reels and Shorts scrolling and offers you a way out, as a separate opt-in companion app.
 

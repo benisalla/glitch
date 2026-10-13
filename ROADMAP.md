@@ -12,16 +12,21 @@ Evidence ratings come from the research review: **moderate** means supported by 
 - Your apps in a new random order every time you open Glitch.
 - Light and dark themes, no permissions, no internet, no tracking.
 
-## v1.1: Dock (current release, no new permissions)
+## v1.1: Dock (shipped, no new permissions)
 - **Fixed dock:** up to 4 apps (defaults: phone, messages, camera, browser) keep a fixed spot and are left out of the shuffle. Long-press an app to add it to or remove it from the dock, or to open App info. This replaces the earlier "anchor apps" idea.
 - Glitch stays a normal app: open it from its icon and get a new order every time.
 - Still no permissions, no internet, no tracking.
 
 **Removed in 1.1.1: the home-screen experiment.** v1.1.0 let you set Glitch as your home app, reshuffling on every unlock. After trying it, the owner decided on 2026-10-13 to remove it: a shuffled menu as the whole home screen felt like being trapped. Glitch never replaces your home screen again. If you had set it as your home app, your phone returns to its usual home screen after updating to 1.1.1.
 
-**Research, ongoing:** whether Glitch can shuffle the phone's own app drawer (for example Samsung's) without replacing the launcher. Findings will go in `product/samsung-drawer-research.md` (coming).
+**Research, done:** no app can reorder the phone's own app drawer (for example Samsung One UI Home) without replacing the launcher. See [`product/samsung-drawer-research.md`](product/samsung-drawer-research.md). That led to the widget in v1.2.
 
-## v1.2: Intention moment (no new permissions)
+## v1.2: Shuffled apps widget (current release, no new permissions)
+- A home-screen widget for your usual launcher (Samsung One UI Home included) that shows your apps in a shuffled order. Tap an app and it opens.
+- Reshuffles after every app you open from it, when you open Glitch, and on the system's periodic widget update. Not on unlock: that would need a background service.
+- Your home screen, app drawer, wallpaper and folders are untouched.
+
+## v1.3: Intention moment (no new permissions)
 Why next: these features make the shuffle easier to live with and add the first gentle cue, without giving up "Permissions: none".
 
 | Feature | What it does | Evidence |
@@ -33,7 +38,7 @@ Why next: these features make the shuffle easier to live with and add the first 
 | "Away time" card | Coming back to Glitch shows "You left 23 min ago for YouTube". Only from Glitch's own launches. | Weak |
 | Glitch shortcuts | Put "Instagram via Glitch" on your home screen so the pause also works from there. | Feasibility-checked |
 
-## v1.3: Gentle cues (one optional permission: notifications)
+## v1.4: Gentle cues (one optional permission: notifications)
 - **Kind time cue:** one notification a while after you open a noisy app from Glitch, showing your own reason. At most one per launch. Off by default.
 - **Focus widget and Quick Settings tile:** start a focus set from the home screen.
 
