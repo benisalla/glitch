@@ -1,6 +1,6 @@
 # Play Store release kit
 
-Everything needed to publish Shuffle App Menu on Google Play, plus a step-by-step checklist.
+Everything needed to publish Shuffle Menu on Google Play, plus a step-by-step checklist.
 
 ## What is in this folder
 | Path | What it is |
@@ -18,7 +18,7 @@ Everything needed to publish Shuffle App Menu on Google Play, plus a step-by-ste
 
 The text files use the [fastlane `supply`](https://docs.fastlane.tools/actions/supply/) layout, so they can be uploaded automatically later. For a first release, copy and paste them into Play Console by hand; fastlane is not required.
 
-The Play title is "Shuffle App Menu"; the name under the icon on the phone is "Shuffle Menu" (from `strings.xml`). Both are fine together.
+The Play title is "Shuffle Menu: Random App Order" (see `fastlane/metadata/android/en-US/title.txt`); the name under the icon on the phone is "Shuffle Menu" (from `strings.xml`).
 
 ### Regenerating the icon and graphics
 ```
@@ -69,7 +69,7 @@ keytool -genkeypair -v \
 - [ ] Optional sanity check: install a release build on your phone and open a few apps from the menu.
 
 ### 4. Create the app and turn on Play App Signing (owner)
-- [ ] Play Console > **Create app**: name "Shuffle App Menu", default language English (United States), App, Free. Accept the declarations.
+- [ ] Play Console > **Create app**: name "Shuffle Menu: Random App Order", default language English (United States), App, Free. Accept the declarations.
 - [ ] When you upload the first AAB, accept **Play App Signing** (Google-managed app signing key). This is the default and lets you reset a lost upload key later.
 
 ### 5. Host the privacy policy (owner)
