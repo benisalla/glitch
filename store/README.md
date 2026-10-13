@@ -80,7 +80,7 @@ Play Console > **Grow > Store presence > Main store listing**:
 - [ ] App name, short description, full description: paste from `fastlane/metadata/android/en-US/`.
 - [ ] App icon: `graphics/icon-512.png`.
 - [ ] Feature graphic: `graphics/feature-graphic.png`.
-- [ ] Phone screenshots: see "Screenshots" below.
+- [ ] Phone screenshots: upload the 5 ready-made images in `store/graphics/marketing/` in order (01 to 05). See "Screenshots" below to regenerate them.
 - [ ] Store settings (category, contact email): see `data-safety.md` section 3. Category: **Tools**.
 
 ### 7. App content (Policy > App content)
@@ -111,6 +111,8 @@ Accounts registered as an organization, or personal accounts created before that
 ---
 
 ## Screenshots to capture
+Ready to upload: `store/graphics/marketing/01-hero.png` … `05-privacy.png` (1080 x 1920). They are built from the raw captures in `store/screenshots/` by `python3 store/tools/make_screenshots.py`; re-capture those and re-run the script whenever the UI changes.
+
 Play requirements for phone screenshots: **at least 2** (up to 8), PNG or JPEG, max 8 MB each, 16:9 or 9:16, each side between 320 px and 3840 px. Use **1080 x 1920 or larger** in portrait; at least 4 such screenshots are needed for the app to be eligible for some Play promotion surfaces.
 
 Use an emulator or a phone with only common apps installed so no personal app names appear. Capture with:
@@ -130,5 +132,4 @@ Do not add text overlays that claim benefits such as better focus or memory.
 - Create and safely back up the upload keystore and its passwords; write `keystore.properties`.
 - Publish the privacy policy at a public URL (Gist, Google Sites, or GitHub Pages).
 - Recruit 12+ closed testers and keep them for 14 consecutive days.
-- Capture screenshots on a device or emulator.
 - Submit forms, apply for production, and press "Send for review".
