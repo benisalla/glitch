@@ -57,6 +57,7 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.benisalla.shufflemenu.R
 import com.benisalla.shufflemenu.model.AppEntry
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -171,9 +172,17 @@ private fun AppTile(
 ) {
     val iconPx = with(LocalDensity.current) { IconSize.roundToPx() }
     val icon by produceState<ImageBitmap?>(initialValue = null, entry.key, iconPx) {
-        val drawable = loadIcon(entry) ?: return@produceState
-        // Rasterize off the main thread so scrolling a long grid stays smooth.
-        value = withContext(Dispatchers.Default) { drawable.toBitmap(iconPx, iconPx).asImageBitmap() }
+        // A third-party app's broken icon must not crash the whole menu: on failure the
+        // tile keeps its placeholder. Cancellation (tile scrolled away) still propagates.
+        value = try {
+            val drawable = loadIcon(entry) ?: return@produceState
+            // Rasterize off the main thread so scrolling a long grid stays smooth.
+            withContext(Dispatchers.Default) { drawable.toBitmap(iconPx, iconPx).asImageBitmap() }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            null
+        }
     }
 
     Column(
